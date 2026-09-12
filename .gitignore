@@ -24,4 +24,4 @@ runs/
 .env
 .vscode/
 
-VN_trash_classification
+VN_trash_classificationdata/image_cache_224/

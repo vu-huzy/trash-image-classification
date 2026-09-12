@@ -1,0 +1,11 @@
+{
+  "Alu": 0,
+  "Carton": 1,
+  "Foam_box": 2,
+  "Milk_box": 3,
+  "Other": 4,
+  "PET": 5,
+  "Paper": 6,
+  "Paper_cup": 7,
+  "Plastic_cup": 8
+}
