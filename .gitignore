@@ -1,0 +1,27 @@
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Local data and large archives
+archive.zip
+*.7z
+*.rar
+*.tar
+*.tar.gz
+
+# Experiment outputs
+checkpoints/
+logs/
+runs/
+*.pt
+*.pth
+*.onnx
+
+# Local environment files
+.env
+.vscode/
+
+VN_trash_classification
