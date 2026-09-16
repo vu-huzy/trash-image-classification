@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 .pytest_cache/
 .ipynb_checkpoints/
-
+data/
 # Local data and large archives
 archive.zip
 *.7z

@@ -1,0 +1,26 @@
+=== 3B | 3b_frozen_vit_b_16 ===
+Freeze all of vit_b_16, train only the MLP head
+device=cuda amp=bfloat16 batch_size=64
+splits={'train': 9542, 'val': 1685, 'test': 864} classes=9
+backbone=ViT-B/16 (768-d features)  head=MLP(768->512->9, dropout=0.3)
+strategy=frozen  trainable=399,369 / 86,198,025 params (0.46%)
+optimizer=AdamW head_lr=0.001 backbone_lr=0.0
+
+  epoch  1/30  train loss 0.4367 acc 0.8638  |  val loss 0.3126 acc 0.9009 f1 0.9012  |  10.2s  <- best
+  epoch  2/30  train loss 0.2019 acc 0.9374  |  val loss 0.2834 acc 0.9068 f1 0.9070  |  10.2s  <- best
+  epoch  3/30  train loss 0.1275 acc 0.9639  |  val loss 0.2899 acc 0.9068 f1 0.9072  |  10.3s
+  epoch  4/30  train loss 0.0897 acc 0.9746  |  val loss 0.2931 acc 0.9169 f1 0.9174  |  10.2s  <- best
+  epoch  5/30  train loss 0.0635 acc 0.9829  |  val loss 0.2936 acc 0.9169 f1 0.9172  |  10.3s
+  epoch  6/30  train loss 0.0464 acc 0.9887  |  val loss 0.3089 acc 0.9104 f1 0.9109  |  10.3s
+  epoch  7/30  train loss 0.0395 acc 0.9912  |  val loss 0.3054 acc 0.9151 f1 0.9157  |  10.3s
+  epoch  8/30  train loss 0.0293 acc 0.9927  |  val loss 0.3118 acc 0.9128 f1 0.9126  |  10.5s
+  epoch  9/30  train loss 0.0240 acc 0.9949  |  val loss 0.3128 acc 0.9145 f1 0.9148  |  10.4s
+  epoch 10/30  train loss 0.0206 acc 0.9955  |  val loss 0.3214 acc 0.9134 f1 0.9136  |  10.4s
+  early stopping: no val improvement for 6 epochs
+
+restored best checkpoint from epoch 4
+VAL   acc 0.9169  f1_macro 0.9174  precision_macro 0.9195  recall_macro 0.9168
+TEST  acc 0.9317  f1_macro 0.9284  precision_macro 0.9261  recall_macro 0.9330
+train time 129.6s over 10 epochs (10.3s/epoch), peak GPU 770 MB
+inference: 640 img/s end-to-end (test loader) | 667 img/s model-only (95.9 ms / batch of 64)
+artefacts -> C:\dl-project\trash-image-classification\src\model3\results\3b_frozen_vit_b_16

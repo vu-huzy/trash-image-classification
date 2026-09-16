@@ -1,0 +1,210 @@
+{
+  "experiment": "3b_frozen_resnet50",
+  "variant": "3B",
+  "description": "Freeze all of resnet50, train only the MLP head",
+  "model": {
+    "backbone": "resnet50",
+    "backbone_label": "ResNet50",
+    "strategy": "frozen",
+    "feature_dim": 2048,
+    "head": "MLP(2048->512->9, dropout=0.3)",
+    "total_params": 24562761,
+    "trainable_params": 1054729,
+    "lora_params": 0,
+    "lora_modules": [],
+    "trainable_fraction": 0.0429401645849178
+  },
+  "config": {
+    "name": "3b_frozen_resnet50",
+    "variant": "3B",
+    "backbone": "resnet50",
+    "strategy": "frozen",
+    "description": "Freeze all of resnet50, train only the MLP head",
+    "head_hidden_dim": 512,
+    "head_dropout": 0.3,
+    "batch_size": 64,
+    "epochs": 30,
+    "patience": 6,
+    "head_lr": 0.001,
+    "backbone_lr": 0.0,
+    "weight_decay": 0.0001,
+    "grad_clip": 0.0,
+    "lora_rank": 8,
+    "lora_alpha": 16.0,
+    "lora_dropout": 0.05
+  },
+  "data": {
+    "splits": {
+      "train": 9542,
+      "val": 1685,
+      "test": 864
+    },
+    "class_names": [
+      "Alu",
+      "Carton",
+      "Foam_box",
+      "Milk_box",
+      "Other",
+      "PET",
+      "Paper",
+      "Paper_cup",
+      "Plastic_cup"
+    ]
+  },
+  "training": {
+    "epochs_ran": 13,
+    "epochs_configured": 30,
+    "best_epoch": 7,
+    "early_stopped": true,
+    "best_val_accuracy": 0.9341246290801187,
+    "best_val_f1_macro": 0.9341191911554402
+  },
+  "timing": {
+    "train_total_seconds": 163.28294199996162,
+    "mean_epoch_seconds": 10.686621907704438,
+    "test_inference_seconds": 1.1720240999711677,
+    "test_images_per_second": 737.186206342732,
+    "model_ms_per_batch": 76.54297666546577,
+    "model_images_per_second": 836.1315797753023,
+    "benchmark_batch_size": 64,
+    "run_total_seconds": 177.0303349000169,
+    "peak_gpu_memory_mb": 851.08349609375
+  },
+  "val": {
+    "accuracy": 0.9341246290801187,
+    "balanced_accuracy": 0.9340184083547862,
+    "precision_macro": 0.9350282258257406,
+    "recall_macro": 0.9340184083547862,
+    "f1_macro": 0.9341191911554402,
+    "precision_weighted": 0.9351903515095124,
+    "recall_weighted": 0.9341246290801187,
+    "f1_weighted": 0.9342466833919431,
+    "per_class": {
+      "Alu": {
+        "precision": 0.91,
+        "recall": 0.9732620320855615,
+        "f1": 0.9405684754521964,
+        "support": 187
+      },
+      "Carton": {
+        "precision": 0.9574468085106383,
+        "recall": 0.9326424870466321,
+        "f1": 0.9448818897637795,
+        "support": 193
+      },
+      "Foam_box": {
+        "precision": 0.994535519125683,
+        "recall": 0.9732620320855615,
+        "f1": 0.9837837837837838,
+        "support": 187
+      },
+      "Milk_box": {
+        "precision": 0.9411764705882353,
+        "recall": 0.9411764705882353,
+        "f1": 0.9411764705882353,
+        "support": 170
+      },
+      "Other": {
+        "precision": 0.9238578680203046,
+        "recall": 0.9191919191919192,
+        "f1": 0.9215189873417722,
+        "support": 198
+      },
+      "PET": {
+        "precision": 0.9719101123595506,
+        "recall": 0.9153439153439153,
+        "f1": 0.9427792915531336,
+        "support": 189
+      },
+      "Paper": {
+        "precision": 0.8863636363636364,
+        "recall": 0.8914285714285715,
+        "f1": 0.8888888888888888,
+        "support": 175
+      },
+      "Paper_cup": {
+        "precision": 0.8894230769230769,
+        "recall": 0.9536082474226805,
+        "f1": 0.9203980099502488,
+        "support": 194
+      },
+      "Plastic_cup": {
+        "precision": 0.9405405405405406,
+        "recall": 0.90625,
+        "f1": 0.9230769230769231,
+        "support": 192
+      }
+    }
+  },
+  "test": {
+    "accuracy": 0.9293981481481481,
+    "balanced_accuracy": 0.9308505696032116,
+    "precision_macro": 0.922749484072495,
+    "recall_macro": 0.9308505696032116,
+    "f1_macro": 0.9227364809747441,
+    "precision_weighted": 0.9370105681779477,
+    "recall_weighted": 0.9293981481481481,
+    "f1_weighted": 0.9302665615882715,
+    "per_class": {
+      "Alu": {
+        "precision": 0.9142857142857143,
+        "recall": 0.9696969696969697,
+        "f1": 0.9411764705882353,
+        "support": 99
+      },
+      "Carton": {
+        "precision": 0.97,
+        "recall": 0.8981481481481481,
+        "f1": 0.9326923076923077,
+        "support": 108
+      },
+      "Foam_box": {
+        "precision": 0.9512195121951219,
+        "recall": 0.896551724137931,
+        "f1": 0.9230769230769231,
+        "support": 87
+      },
+      "Milk_box": {
+        "precision": 0.9711538461538461,
+        "recall": 1.0,
+        "f1": 0.9853658536585366,
+        "support": 101
+      },
+      "Other": {
+        "precision": 0.6857142857142857,
+        "recall": 0.96,
+        "f1": 0.8,
+        "support": 50
+      },
+      "PET": {
+        "precision": 1.0,
+        "recall": 0.8137254901960784,
+        "f1": 0.8972972972972973,
+        "support": 102
+      },
+      "Paper": {
+        "precision": 0.9433962264150944,
+        "recall": 0.9433962264150944,
+        "f1": 0.9433962264150944,
+        "support": 106
+      },
+      "Paper_cup": {
+        "precision": 0.9369369369369369,
+        "recall": 0.9904761904761905,
+        "f1": 0.9629629629629629,
+        "support": 105
+      },
+      "Plastic_cup": {
+        "precision": 0.9320388349514563,
+        "recall": 0.9056603773584906,
+        "f1": 0.9186602870813397,
+        "support": 106
+      }
+    }
+  },
+  "environment": {
+    "device": "NVIDIA GeForce RTX 5070",
+    "torch": "2.14.0+cu130",
+    "amp_dtype": "bfloat16"
+  }
+}

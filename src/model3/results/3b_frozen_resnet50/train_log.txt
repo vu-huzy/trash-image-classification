@@ -1,0 +1,29 @@
+=== 3B | 3b_frozen_resnet50 ===
+Freeze all of resnet50, train only the MLP head
+device=cuda amp=bfloat16 batch_size=64
+splits={'train': 9542, 'val': 1685, 'test': 864} classes=9
+backbone=ResNet50 (2048-d features)  head=MLP(2048->512->9, dropout=0.3)
+strategy=frozen  trainable=1,054,729 / 24,562,761 params (4.29%)
+optimizer=AdamW head_lr=0.001 backbone_lr=0.0
+
+  epoch  1/30  train loss 0.4340 acc 0.8612  |  val loss 0.2619 acc 0.9151 f1 0.9156  |  14.5s  <- best
+  epoch  2/30  train loss 0.1770 acc 0.9456  |  val loss 0.2502 acc 0.9151 f1 0.9147  |  10.5s
+  epoch  3/30  train loss 0.1113 acc 0.9681  |  val loss 0.2527 acc 0.9181 f1 0.9185  |  10.2s  <- best
+  epoch  4/30  train loss 0.0816 acc 0.9745  |  val loss 0.2406 acc 0.9228 f1 0.9231  |  10.2s  <- best
+  epoch  5/30  train loss 0.0505 acc 0.9879  |  val loss 0.2514 acc 0.9270 f1 0.9271  |  10.5s  <- best
+  epoch  6/30  train loss 0.0396 acc 0.9891  |  val loss 0.2633 acc 0.9258 f1 0.9259  |  10.4s
+  epoch  7/30  train loss 0.0300 acc 0.9928  |  val loss 0.2489 acc 0.9341 f1 0.9341  |  10.2s  <- best
+  epoch  8/30  train loss 0.0282 acc 0.9931  |  val loss 0.3117 acc 0.9240 f1 0.9242  |  10.2s
+  epoch  9/30  train loss 0.0214 acc 0.9954  |  val loss 0.2803 acc 0.9217 f1 0.9213  |  10.4s
+  epoch 10/30  train loss 0.0154 acc 0.9966  |  val loss 0.2697 acc 0.9335 f1 0.9337  |  10.4s
+  epoch 11/30  train loss 0.0148 acc 0.9962  |  val loss 0.2769 acc 0.9306 f1 0.9308  |  10.5s
+  epoch 12/30  train loss 0.0155 acc 0.9957  |  val loss 0.2787 acc 0.9318 f1 0.9320  |  10.4s
+  epoch 13/30  train loss 0.0114 acc 0.9977  |  val loss 0.2893 acc 0.9312 f1 0.9315  |  10.4s
+  early stopping: no val improvement for 6 epochs
+
+restored best checkpoint from epoch 7
+VAL   acc 0.9341  f1_macro 0.9341  precision_macro 0.9350  recall_macro 0.9340
+TEST  acc 0.9294  f1_macro 0.9227  precision_macro 0.9227  recall_macro 0.9309
+train time 163.3s over 13 epochs (10.7s/epoch), peak GPU 851 MB
+inference: 737 img/s end-to-end (test loader) | 836 img/s model-only (76.5 ms / batch of 64)
+artefacts -> C:\dl-project\trash-image-classification\src\model3\results\3b_frozen_resnet50

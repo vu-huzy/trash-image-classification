@@ -1,0 +1,47 @@
+=== 3C | 3c_lora_vit_b_16 ===
+Frozen vit_b_16 + LoRA adapters, train adapters + MLP head
+device=cuda amp=bfloat16 batch_size=32
+splits={'train': 9542, 'val': 1685, 'test': 864} classes=9
+backbone=ViT-B/16 (768-d features)  head=MLP(768->512->9, dropout=0.3)
+strategy=lora  trainable=1,136,649 / 86,935,305 params (1.31%)
+LoRA: rank=8 alpha=16.0 -> 24 adapted layers, 737,280 adapter params
+      first adapted layers: encoder.layers.encoder_layer_0.mlp.0, encoder.layers.encoder_layer_0.mlp.3, encoder.layers.encoder_layer_1.mlp.0, encoder.layers.encoder_layer_1.mlp.3 ...
+optimizer=AdamW head_lr=0.001 backbone_lr=0.001
+
+  epoch  1/30  train loss 0.3678 acc 0.8822  |  val loss 0.2832 acc 0.9086 f1 0.9092  |  85.1s  <- best
+  epoch  2/30  train loss 0.1500 acc 0.9535  |  val loss 0.2812 acc 0.9169 f1 0.9177  |  45.4s  <- best
+  epoch  3/30  train loss 0.1068 acc 0.9643  |  val loss 0.3169 acc 0.9062 f1 0.9075  |  37.4s
+  epoch  4/30  train loss 0.0697 acc 0.9768  |  val loss 0.2540 acc 0.9276 f1 0.9281  |  40.9s  <- best
+  epoch  5/30  train loss 0.0559 acc 0.9829  |  val loss 0.3287 acc 0.9116 f1 0.9118  |  38.3s
+  epoch  6/30  train loss 0.0715 acc 0.9759  |  val loss 0.4528 acc 0.8849 f1 0.8867  |  40.3s
+  epoch  7/30  train loss 0.0488 acc 0.9827  |  val loss 0.3673 acc 0.9122 f1 0.9126  |  44.8s
+  epoch  8/30  train loss 0.0641 acc 0.9799  |  val loss 0.3679 acc 0.9110 f1 0.9122  |  37.9s
+  epoch  9/30  train loss 0.0408 acc 0.9861  |  val loss 0.2835 acc 0.9288 f1 0.9290  |  40.3s  <- best
+  epoch 10/30  train loss 0.0233 acc 0.9926  |  val loss 0.3315 acc 0.9187 f1 0.9198  |  38.8s
+  epoch 11/30  train loss 0.0253 acc 0.9912  |  val loss 0.3626 acc 0.9122 f1 0.9117  |  40.4s
+  epoch 12/30  train loss 0.0176 acc 0.9937  |  val loss 0.3742 acc 0.9181 f1 0.9190  |  41.1s
+  epoch 13/30  train loss 0.0279 acc 0.9910  |  val loss 0.3539 acc 0.9199 f1 0.9204  |  37.4s
+  epoch 14/30  train loss 0.0155 acc 0.9952  |  val loss 0.3268 acc 0.9300 f1 0.9301  |  38.5s  <- best
+  epoch 15/30  train loss 0.0048 acc 0.9987  |  val loss 0.4429 acc 0.9045 f1 0.9044  |  39.8s
+  epoch 16/30  train loss 0.0108 acc 0.9966  |  val loss 0.3772 acc 0.9252 f1 0.9256  |  40.3s
+  epoch 17/30  train loss 0.0088 acc 0.9975  |  val loss 0.3480 acc 0.9282 f1 0.9280  |  38.7s
+  epoch 18/30  train loss 0.0060 acc 0.9979  |  val loss 0.3506 acc 0.9288 f1 0.9295  |  44.4s
+  epoch 19/30  train loss 0.0047 acc 0.9985  |  val loss 0.3449 acc 0.9353 f1 0.9352  |  37.2s  <- best
+  epoch 20/30  train loss 0.0028 acc 0.9992  |  val loss 0.3721 acc 0.9288 f1 0.9289  |  40.5s
+  epoch 21/30  train loss 0.0012 acc 0.9997  |  val loss 0.3378 acc 0.9365 f1 0.9367  |  41.5s  <- best
+  epoch 22/30  train loss 0.0010 acc 0.9997  |  val loss 0.3698 acc 0.9359 f1 0.9363  |  38.6s
+  epoch 23/30  train loss 0.0021 acc 0.9995  |  val loss 0.3720 acc 0.9347 f1 0.9347  |  45.0s
+  epoch 24/30  train loss 0.0024 acc 0.9994  |  val loss 0.3904 acc 0.9335 f1 0.9334  |  41.6s
+  epoch 25/30  train loss 0.0020 acc 0.9994  |  val loss 0.3693 acc 0.9389 f1 0.9387  |  39.2s  <- best
+  epoch 26/30  train loss 0.0017 acc 0.9995  |  val loss 0.3816 acc 0.9347 f1 0.9348  |  42.1s
+  epoch 27/30  train loss 0.0015 acc 0.9996  |  val loss 0.3905 acc 0.9347 f1 0.9347  |  42.5s
+  epoch 28/30  train loss 0.0006 acc 0.9999  |  val loss 0.3769 acc 0.9347 f1 0.9347  |  44.6s
+  epoch 29/30  train loss 0.0007 acc 0.9998  |  val loss 0.3686 acc 0.9353 f1 0.9352  |  42.5s
+  epoch 30/30  train loss 0.0009 acc 0.9999  |  val loss 0.3695 acc 0.9359 f1 0.9358  |  42.2s
+
+restored best checkpoint from epoch 25
+VAL   acc 0.9389  f1_macro 0.9387  precision_macro 0.9400  recall_macro 0.9385
+TEST  acc 0.9537  f1_macro 0.9501  precision_macro 0.9479  recall_macro 0.9534
+train time 1450.2s over 30 epochs (42.2s/epoch), peak GPU 2530 MB
+inference: 401 img/s end-to-end (test loader) | 225 img/s model-only (142.4 ms / batch of 32)
+artefacts -> C:\dl-project\trash-image-classification\src\model3\results\3c_lora_vit_b_16

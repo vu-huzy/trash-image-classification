@@ -1,0 +1,33 @@
+=== 3D | 3d_full_finetune_vit_b_16 ===
+Fine-tune every weight of vit_b_16 together with the MLP head
+device=cuda amp=bfloat16 batch_size=32
+splits={'train': 9542, 'val': 1685, 'test': 864} classes=9
+backbone=ViT-B/16 (768-d features)  head=MLP(768->512->9, dropout=0.3)
+strategy=full_finetune  trainable=86,198,025 / 86,198,025 params (100.00%)
+optimizer=AdamW head_lr=0.001 backbone_lr=1e-05
+
+  epoch  1/30  train loss 0.3622 acc 0.8875  |  val loss 0.2520 acc 0.9205 f1 0.9206  |  46.7s  <- best
+  epoch  2/30  train loss 0.1164 acc 0.9641  |  val loss 0.2358 acc 0.9306 f1 0.9307  |  52.2s  <- best
+  epoch  3/30  train loss 0.0539 acc 0.9842  |  val loss 0.2866 acc 0.9359 f1 0.9360  |  47.0s  <- best
+  epoch  4/30  train loss 0.0253 acc 0.9923  |  val loss 0.3456 acc 0.9323 f1 0.9324  |  48.5s
+  epoch  5/30  train loss 0.0169 acc 0.9957  |  val loss 0.3768 acc 0.9318 f1 0.9317  |  47.4s
+  epoch  6/30  train loss 0.0142 acc 0.9967  |  val loss 0.3896 acc 0.9371 f1 0.9371  |  48.7s  <- best
+  epoch  7/30  train loss 0.0148 acc 0.9960  |  val loss 0.4068 acc 0.9418 f1 0.9421  |  46.7s  <- best
+  epoch  8/30  train loss 0.0066 acc 0.9975  |  val loss 0.4041 acc 0.9395 f1 0.9396  |  44.9s
+  epoch  9/30  train loss 0.0056 acc 0.9987  |  val loss 0.4614 acc 0.9407 f1 0.9409  |  45.1s
+  epoch 10/30  train loss 0.0070 acc 0.9984  |  val loss 0.4140 acc 0.9329 f1 0.9333  |  42.0s
+  epoch 11/30  train loss 0.0050 acc 0.9988  |  val loss 0.5031 acc 0.9389 f1 0.9392  |  34.4s
+  epoch 12/30  train loss 0.0064 acc 0.9984  |  val loss 0.4553 acc 0.9442 f1 0.9443  |  34.6s  <- best
+  epoch 13/30  train loss 0.0054 acc 0.9985  |  val loss 0.4689 acc 0.9407 f1 0.9409  |  34.2s
+  epoch 14/30  train loss 0.0049 acc 0.9987  |  val loss 0.4638 acc 0.9395 f1 0.9397  |  33.9s
+  epoch 15/30  train loss 0.0011 acc 0.9997  |  val loss 0.4492 acc 0.9401 f1 0.9402  |  37.4s
+  epoch 16/30  train loss 0.0019 acc 0.9997  |  val loss 0.4691 acc 0.9418 f1 0.9420  |  47.2s
+  epoch 17/30  train loss 0.0010 acc 0.9996  |  val loss 0.4746 acc 0.9412 f1 0.9414  |  51.2s
+  early stopping: no val improvement for 5 epochs
+
+restored best checkpoint from epoch 12
+VAL   acc 0.9442  f1_macro 0.9443  precision_macro 0.9452  recall_macro 0.9441
+TEST  acc 0.9468  f1_macro 0.9470  precision_macro 0.9459  recall_macro 0.9492
+train time 795.1s over 17 epochs (43.7s/epoch), peak GPU 3476 MB
+inference: 408 img/s end-to-end (test loader) | 327 img/s model-only (98.0 ms / batch of 32)
+artefacts -> C:\dl-project\trash-image-classification\src\model3\results\3d_full_finetune_vit_b_16

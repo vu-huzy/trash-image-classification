@@ -1,0 +1,26 @@
+=== 3D | 3d_full_finetune_resnet50 ===
+Fine-tune every weight of resnet50 together with the MLP head
+device=cuda amp=bfloat16 batch_size=32
+splits={'train': 9542, 'val': 1685, 'test': 864} classes=9
+backbone=ResNet50 (2048-d features)  head=MLP(2048->512->9, dropout=0.3)
+strategy=full_finetune  trainable=24,562,761 / 24,562,761 params (100.00%)
+optimizer=AdamW head_lr=0.001 backbone_lr=0.0001
+
+  epoch  1/30  train loss 0.4411 acc 0.8582  |  val loss 0.2359 acc 0.9335 f1 0.9337  |  39.3s  <- best
+  epoch  2/30  train loss 0.1646 acc 0.9468  |  val loss 0.2174 acc 0.9401 f1 0.9406  |  30.7s  <- best
+  epoch  3/30  train loss 0.0909 acc 0.9721  |  val loss 0.2518 acc 0.9371 f1 0.9375  |  27.2s
+  epoch  4/30  train loss 0.0726 acc 0.9770  |  val loss 0.2803 acc 0.9341 f1 0.9345  |  24.4s
+  epoch  5/30  train loss 0.0557 acc 0.9836  |  val loss 0.2446 acc 0.9484 f1 0.9489  |  23.9s  <- best
+  epoch  6/30  train loss 0.0433 acc 0.9871  |  val loss 0.2521 acc 0.9472 f1 0.9469  |  23.2s
+  epoch  7/30  train loss 0.0369 acc 0.9891  |  val loss 0.2795 acc 0.9472 f1 0.9476  |  22.8s
+  epoch  8/30  train loss 0.0317 acc 0.9900  |  val loss 0.3160 acc 0.9395 f1 0.9400  |  22.8s
+  epoch  9/30  train loss 0.0299 acc 0.9901  |  val loss 0.4085 acc 0.9371 f1 0.9382  |  22.8s
+  epoch 10/30  train loss 0.0263 acc 0.9921  |  val loss 0.3243 acc 0.9436 f1 0.9439  |  23.0s
+  early stopping: no val improvement for 5 epochs
+
+restored best checkpoint from epoch 5
+VAL   acc 0.9484  f1_macro 0.9489  precision_macro 0.9493  recall_macro 0.9490
+TEST  acc 0.9606  f1_macro 0.9597  precision_macro 0.9589  recall_macro 0.9613
+train time 283.7s over 10 epochs (26.0s/epoch), peak GPU 1785 MB
+inference: 704 img/s end-to-end (test loader) | 524 img/s model-only (61.1 ms / batch of 32)
+artefacts -> C:\dl-project\trash-image-classification\src\model3\results\3d_full_finetune_resnet50

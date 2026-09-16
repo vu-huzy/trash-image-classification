@@ -1,0 +1,26 @@
+=== 3B | 3b_frozen_efficientnet_b0 ===
+Freeze all of efficientnet_b0, train only the MLP head
+device=cuda amp=bfloat16 batch_size=64
+splits={'train': 9542, 'val': 1685, 'test': 864} classes=9
+backbone=EfficientNet-B0 (1280-d features)  head=MLP(1280->512->9, dropout=0.3)
+strategy=frozen  trainable=661,513 / 4,669,061 params (14.17%)
+optimizer=AdamW head_lr=0.001 backbone_lr=0.0
+
+  epoch  1/30  train loss 0.4685 acc 0.8530  |  val loss 0.3035 acc 0.9027 f1 0.9026  |  14.3s  <- best
+  epoch  2/30  train loss 0.2136 acc 0.9323  |  val loss 0.2965 acc 0.9056 f1 0.9052  |  10.7s  <- best
+  epoch  3/30  train loss 0.1358 acc 0.9612  |  val loss 0.3129 acc 0.8979 f1 0.8977  |  10.7s
+  epoch  4/30  train loss 0.0954 acc 0.9725  |  val loss 0.3108 acc 0.9122 f1 0.9123  |  10.4s  <- best
+  epoch  5/30  train loss 0.0657 acc 0.9820  |  val loss 0.3566 acc 0.9080 f1 0.9076  |  10.7s
+  epoch  6/30  train loss 0.0524 acc 0.9861  |  val loss 0.3366 acc 0.9104 f1 0.9104  |  10.5s
+  epoch  7/30  train loss 0.0345 acc 0.9924  |  val loss 0.3502 acc 0.9080 f1 0.9080  |  10.1s
+  epoch  8/30  train loss 0.0266 acc 0.9943  |  val loss 0.3509 acc 0.9116 f1 0.9117  |  10.5s
+  epoch  9/30  train loss 0.0261 acc 0.9936  |  val loss 0.3873 acc 0.9074 f1 0.9077  |  10.5s
+  epoch 10/30  train loss 0.0200 acc 0.9959  |  val loss 0.3848 acc 0.9104 f1 0.9101  |  10.6s
+  early stopping: no val improvement for 6 epochs
+
+restored best checkpoint from epoch 4
+VAL   acc 0.9122  f1_macro 0.9123  precision_macro 0.9131  recall_macro 0.9123
+TEST  acc 0.9201  f1_macro 0.9132  precision_macro 0.9148  recall_macro 0.9164
+train time 131.7s over 10 epochs (10.9s/epoch), peak GPU 472 MB
+inference: 877 img/s end-to-end (test loader) | 604 img/s model-only (105.9 ms / batch of 64)
+artefacts -> C:\dl-project\trash-image-classification\src\model3\results\3b_frozen_efficientnet_b0
