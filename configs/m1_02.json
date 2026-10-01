@@ -1,0 +1,15 @@
+{
+  "id": "M1-02",
+  "architecture": "m1_02",
+  "input_size": 224,
+  "dropout": 0.2,
+  "batch_size": 256,
+  "workers": 0,
+  "optimizer": "adam",
+  "learning_rate": 0.001,
+  "weight_decay": 0.0,
+  "max_epochs": 50,
+  "patience": 8,
+  "min_delta": 0.001,
+  "seed": 42
+}
