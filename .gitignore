@@ -23,5 +23,5 @@ runs/
 # Local environment files
 .env
 .vscode/
-
+data/
 VN_trash_classification
