@@ -12,6 +12,9 @@ archive.zip
 *.tar
 *.tar.gz
 
+# Generated image cache: recreated locally from the dataset; too large for GitHub.
+data/image_cache_*/
+
 # Experiment outputs
 checkpoints/
 logs/
@@ -23,5 +26,10 @@ runs/
 # Local environment files
 .env
 .vscode/
+<<<<<<< HEAD
 data/
 VN_trash_classification
+=======
+
+VN_trash_classification
+>>>>>>> 6a7be5d55eda30aed1d86d1ea7fe79a341f70243
