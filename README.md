@@ -82,6 +82,23 @@ Kết quả nằm tại `data/VN_trash_classification_preprocessing/`:
 
 ## Huấn luyện mô hình
 
+### Model 1 — Simple NN / CNN trên JPEG tiền xử lý
+
+Chạy từng chương trình hoàn chỉnh `src/model1/m1_01.py` đến `m1_04.py` bằng Python 3.11.
+Các chương trình dùng `ImageFolder` trên `data/VN_trash_classification_preprocessing/{train,val,test}`
+(9.542 / 1.685 / 864 ảnh), Adam lr=0.001, batch size 64 và 50 epoch; chọn checkpoint theo validation loss.
+M1-01 nhận ảnh 128×128, M1-02/03/04 nhận 224×224. Flip và ColorJitter chỉ dùng cho train.
+`metrics.py` là phần metric dùng chung. Lịch sử, checkpoint và kết quả được lưu tại
+`reports/model1_preprocessed/`. Giải thích từng dòng và kết quả lần chạy lại:
+[MODEL1_CODE_AND_RESULT.md](docs/MODEL1_CODE_AND_RESULT.md).
+
+| Model | Test accuracy | Macro F1 | Thời gian |
+| --- | ---: | ---: | ---: |
+| M1-01 — MLP | 18.06% | 0.0926 | 22m 30s |
+| M1-02 — CNN 2 block | 56.37% | 0.5565 | 42m 40s |
+| M1-03 — CNN 3 block | **60.30%** | **0.5916** | 38m 15s |
+| M1-04 — CNN 3 block + GAP | 52.66% | 0.5112 | 48m 41s |
+
 ### Model 3 — transfer learning với pretrained backbone
 
 Bộ 4 thí nghiệm so sánh các chiến lược chuyển giao học tập trên dataset đã tiền xử lý:
@@ -106,6 +123,7 @@ Kết quả đầy đủ (accuracy, precision/recall/F1 macro + weighted, per-cl
 
 ## Việc còn thiếu / gợi ý tiếp theo
 
-- `src/model1`, `src/model2`: các file `test.py` hiện trống — chưa có model, training loop, hay evaluation.
+- Kết quả M1 trên JPEG tiền xử lý được theo dõi trong `docs/MODEL1_CODE_AND_RESULT.md`;
+  kết quả lịch sử trên cache được giữ riêng trong `docs/MODEL1_CODE_AND_RESULTS.md`.
 - Chưa có script tải dữ liệu gốc dù `kagglehub` đã có trong `requirements.txt`.
 - Chưa có test tự động (`pytest`) cho `src/preprocessing.py` và `src/model3`.
