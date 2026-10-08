@@ -1,0 +1,32 @@
+=== Model 2 | cnn_kernel3_sequential ===
+PyTorch=2.14.0+cu130
+device=cuda gpu=NVIDIA GeForce RTX 5050
+amp=off
+splits=train:9542 val:1685 test:864
+classes=9 batch_size=8 workers=0
+parameters=585,193 optimizer=AdamW lr=0.001
+epoch  1/20 train loss 2.0412 acc 0.2485 | val loss 1.9482 acc 0.3116 f1 0.2728 | 67.2s <- best
+epoch  2/20 train loss 1.9262 acc 0.2975 | val loss 1.8666 acc 0.3513 f1 0.3093 | 67.1s <- best
+epoch  3/20 train loss 1.8513 acc 0.3424 | val loss 1.7588 acc 0.4018 f1 0.3916 | 66.1s <- best
+epoch  4/20 train loss 1.7855 acc 0.3707 | val loss 1.7178 acc 0.4065 f1 0.3967 | 68.4s <- best
+epoch  5/20 train loss 1.7146 acc 0.4015 | val loss 1.6526 acc 0.4522 f1 0.4471 | 70.9s <- best
+epoch  6/20 train loss 1.6826 acc 0.4118 | val loss 1.6231 acc 0.4659 f1 0.4541 | 66.9s <- best
+epoch  7/20 train loss 1.6345 acc 0.4332 | val loss 1.5808 acc 0.4730 f1 0.4607 | 71.1s <- best
+epoch  8/20 train loss 1.5898 acc 0.4568 | val loss 1.5426 acc 0.4671 f1 0.4587 | 72.4s
+epoch  9/20 train loss 1.5444 acc 0.4693 | val loss 1.4453 acc 0.5543 f1 0.5519 | 73.4s <- best
+epoch 10/20 train loss 1.5121 acc 0.4835 | val loss 1.3937 acc 0.5537 f1 0.5476 | 73.5s
+epoch 11/20 train loss 1.4685 acc 0.5067 | val loss 1.3845 acc 0.5490 f1 0.5499 | 73.5s
+epoch 12/20 train loss 1.4261 acc 0.5252 | val loss 1.3877 acc 0.5656 f1 0.5633 | 73.1s <- best
+epoch 13/20 train loss 1.3914 acc 0.5324 | val loss 1.2892 acc 0.6059 f1 0.6046 | 73.2s <- best
+epoch 14/20 train loss 1.3679 acc 0.5453 | val loss 1.3899 acc 0.5786 f1 0.5784 | 73.5s
+epoch 15/20 train loss 1.3207 acc 0.5581 | val loss 1.2424 acc 0.5798 f1 0.5805 | 73.4s
+epoch 16/20 train loss 1.2959 acc 0.5745 | val loss 1.2668 acc 0.5887 f1 0.5935 | 73.1s
+epoch 17/20 train loss 1.1958 acc 0.6042 | val loss 1.1594 acc 0.6487 f1 0.6500 | 73.1s <- best
+epoch 18/20 train loss 1.1702 acc 0.6133 | val loss 1.0982 acc 0.6599 f1 0.6600 | 73.2s <- best
+epoch 19/20 train loss 1.1444 acc 0.6269 | val loss 1.0785 acc 0.6760 f1 0.6758 | 73.1s <- best
+epoch 20/20 train loss 1.1305 acc 0.6322 | val loss 1.0611 acc 0.6819 f1 0.6827 | 73.1s <- best
+TEST accuracy 0.5718 balanced_accuracy 0.5753 f1_macro 0.5673 f1_weighted 0.5779
+best_epoch=20 best_val_accuracy=0.6819 train=1429.6s test=2.4s peak_gpu=526 MB
+reports -> C:\Users\quocn\.vscode\trash-image-classification\src\model2\results\cnn_kernel3_sequential\20261008_035258_778524
+checkpoint -> C:\Users\quocn\.vscode\trash-image-classification\src\model2\checkpoints\cnn_kernel3_sequential.pt
+summary -> C:\Users\quocn\.vscode\trash-image-classification\src\model2\results\summary.csv

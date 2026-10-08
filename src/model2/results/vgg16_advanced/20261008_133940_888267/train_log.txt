@@ -1,0 +1,16 @@
+=== Scratch CNN | vgg16_advanced ===
+PyTorch=2.14.0+cu130
+device=cuda gpu=NVIDIA GeForce RTX 5050
+amp=bfloat16
+channels_last=True
+splits=train:9542 val:1685 test:864
+classes=9 batch_size=256 image_size=32 workers=0
+parameters=14,769,257 optimizer=AdamW lr=0.0003
+class_counts=[1059.0, 1093.0, 1061.0, 965.0, 1124.0, 1069.0, 992.0, 1095.0, 1084.0]
+class_weights=[1.0011541843414307, 0.9700111746788025, 0.9992669224739075, 1.0986758470535278, 0.9432582259178162, 0.9917888045310974, 1.0687724351882935, 0.9682394862174988, 0.978064775466919]
+SMOKE TEST enabled.
+epoch  1/1 train loss 2.1675 acc 0.2299 | val loss 2.1136 acc 0.2427 f1 0.1909 | lr 3.00e-04 | 18.5s <- best
+TEST accuracy 0.2350 balanced_accuracy 0.2272 f1_macro 0.1739 f1_weighted 0.1726
+best_epoch=1 best_val_accuracy=0.2427 best_val_f1_macro=0.1909 train=18.6s test=0.8s peak_gpu=840 MB
+reports -> C:\Users\quocn\.vscode\trash-image-classification\src\model2\results\vgg16_advanced\20261008_133940_888267
+Smoke test: checkpoint and summary were not changed.

@@ -43,13 +43,12 @@ src/
     ├── workflow.py   # workflow train/evaluate/checkpoint/report dùng chung
     ├── registry.py   # architecture trong JSON -> module model tương ứng
     ├── train.py      # CLI, CUDA setup, lần lượt gọi model_module.run(...)
-    └── test.py       # entry point: python src/model1/test.py
 ```
 
 Luồng chạy thực tế:
 
 ```text
-test.py -> train.main()
+run.py model1 -> train.main()
         -> đọc configs/m1_0x.json
         -> registry.get_model_module(architecture)
         -> m1_0x.run(...)
@@ -73,7 +72,7 @@ test.py -> train.main()
 | `src/model1/blocks.py` | `conv_bn_relu_pool` | Dùng lại block `Conv2d(k=3,padding=1) -> BatchNorm2d -> ReLU -> MaxPool2d(2)`. Conv/BN/ReLU giữ H×W, MaxPool giảm mỗi chiều không gian còn một nửa. |
 | `src/model1/workflow.py` | `run_model_workflow` | Tạo loader/model/optimizer/scaler; thực hiện train + validation; lưu checkpoint tốt nhất; nạp checkpoint đó để test một lần; lưu JSON. CNN được chuyển sang `channels_last`; MLP không dùng layout này. |
 | `src/model1/registry.py` | `get_model_module` | Ánh xạ `m1_01` … `m1_04` trong JSON sang chính file model tương ứng, tránh `if/else` kiến trúc dồn vào một file lớn. |
-| `src/model1/train.py`, `test.py` | `main` | Bật tối ưu CUDA chung, đọc class names từ cache metadata rồi lần lượt gọi `run()` cho model được yêu cầu. `test.py` chỉ là entry point ngắn gọn. |
+| `src/model1/train.py` | `main` | Bật tối ưu CUDA chung, đọc class names từ cache metadata rồi lần lượt gọi `run()` cho model được yêu cầu. Chạy từ repo root qua `python run.py model1 --models M1-01`. |
 
 ## 3. Data pipeline và shape đầu vào chung
 

@@ -1,0 +1,20 @@
+=== Scratch CNN | vgg16_basic ===
+PyTorch=2.14.0+cu130
+device=cuda gpu=NVIDIA GeForce RTX 5050
+amp=bfloat16
+channels_last=True
+splits=train:9542 val:1685 test:864
+classes=9 batch_size=256 image_size=32 workers=0
+parameters=14,723,529 optimizer=AdamW lr=0.0003
+class_counts=[1059.0, 1093.0, 1061.0, 965.0, 1124.0, 1069.0, 992.0, 1095.0, 1084.0]
+class_weights=[1.0011541843414307, 0.9700111746788025, 0.9992669224739075, 1.0986758470535278, 0.9432582259178162, 0.9917888045310974, 1.0687724351882935, 0.9682394862174988, 0.978064775466919]
+epoch  1/20 train loss 2.1768 acc 0.2206 | val loss 1.9909 acc 0.3104 f1 0.2546 | lr 3.00e-04 | 18.8s <- best
+epoch  2/20 train loss 1.9147 acc 0.3260 | val loss 1.8565 acc 0.3638 f1 0.3259 | lr 3.00e-04 | 18.4s <- best
+epoch  3/20 train loss 1.8100 acc 0.3776 | val loss 1.7027 acc 0.4392 f1 0.4336 | lr 3.00e-04 | 18.3s <- best
+epoch  4/20 train loss 1.7570 acc 0.4015 | val loss 1.7435 acc 0.4142 f1 0.3938 | lr 3.00e-04 | 18.2s
+epoch  5/20 train loss 1.6735 acc 0.4372 | val loss 1.8072 acc 0.4326 f1 0.4082 | lr 3.00e-04 | 18.2s
+epoch  6/20 train loss 1.6200 acc 0.4639 | val loss 1.7179 acc 0.4320 f1 0.4139 | lr 3.00e-04 | 18.0s
+epoch  7/20 train loss 1.5421 acc 0.5010 | val loss 1.5254 acc 0.5199 f1 0.5188 | lr 3.00e-04 | 18.2s <- best
+epoch  8/20 train loss 1.4964 acc 0.5220 | val loss 1.5380 acc 0.5151 f1 0.4967 | lr 3.00e-04 | 18.8s
+epoch  9/20 train loss 1.4506 acc 0.5408 | val loss 1.5270 acc 0.5365 f1 0.5320 | lr 3.00e-04 | 19.0s <- best
+epoch 10/20 train loss 1.3972 acc 0.5623 | val loss 1.4742 acc 0.5407 f1 0.5389 | lr 3.00e-04 | 20.4s <- best

@@ -1,4 +1,4 @@
-"""Improved AlexNet-style classifier with three parallel branches."""
+"""Advanced AlexNet-style classifier with three parallel branches."""
 
 import torch
 from torch import Tensor, nn
@@ -78,3 +78,6 @@ class AlexNetParallel(nn.Module):
         x = self.features(x)
 
         return self.classifier(x)
+
+
+AlexNetAdvanced = AlexNetParallel

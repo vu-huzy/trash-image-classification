@@ -1,0 +1,35 @@
+=== Scratch CNN | vgg16_basic ===
+PyTorch=2.14.0+cu130
+device=cuda gpu=NVIDIA GeForce RTX 5050
+amp=bfloat16
+channels_last=True
+splits=train:9542 val:1685 test:864
+classes=9 batch_size=256 image_size=32 workers=0
+parameters=14,723,529 optimizer=AdamW lr=0.0003
+class_counts=[1059.0, 1093.0, 1061.0, 965.0, 1124.0, 1069.0, 992.0, 1095.0, 1084.0]
+class_weights=[1.0011541843414307, 0.9700111746788025, 0.9992669224739075, 1.0986758470535278, 0.9432582259178162, 0.9917888045310974, 1.0687724351882935, 0.9682394862174988, 0.978064775466919]
+epoch  1/20 train loss 2.1768 acc 0.2206 | val loss 1.9909 acc 0.3104 f1 0.2546 | lr 3.00e-04 | 21.4s <- best
+epoch  2/20 train loss 1.9147 acc 0.3260 | val loss 1.8565 acc 0.3638 f1 0.3259 | lr 3.00e-04 | 18.7s <- best
+epoch  3/20 train loss 1.8100 acc 0.3776 | val loss 1.7027 acc 0.4392 f1 0.4336 | lr 3.00e-04 | 18.7s <- best
+epoch  4/20 train loss 1.7570 acc 0.4015 | val loss 1.7435 acc 0.4142 f1 0.3938 | lr 3.00e-04 | 18.3s
+epoch  5/20 train loss 1.6735 acc 0.4372 | val loss 1.8072 acc 0.4326 f1 0.4082 | lr 3.00e-04 | 18.4s
+epoch  6/20 train loss 1.6200 acc 0.4639 | val loss 1.7179 acc 0.4320 f1 0.4139 | lr 3.00e-04 | 18.5s
+epoch  7/20 train loss 1.5421 acc 0.5010 | val loss 1.5254 acc 0.5199 f1 0.5188 | lr 3.00e-04 | 18.5s <- best
+epoch  8/20 train loss 1.4964 acc 0.5220 | val loss 1.5380 acc 0.5151 f1 0.4967 | lr 3.00e-04 | 18.6s
+epoch  9/20 train loss 1.4506 acc 0.5408 | val loss 1.5270 acc 0.5365 f1 0.5320 | lr 3.00e-04 | 18.5s <- best
+epoch 10/20 train loss 1.3972 acc 0.5623 | val loss 1.4742 acc 0.5407 f1 0.5389 | lr 3.00e-04 | 18.4s <- best
+epoch 11/20 train loss 1.3617 acc 0.5754 | val loss 1.5005 acc 0.5240 f1 0.5173 | lr 3.00e-04 | 19.6s
+epoch 12/20 train loss 1.3441 acc 0.5817 | val loss 1.4741 acc 0.5460 f1 0.5431 | lr 3.00e-04 | 18.4s <- best
+epoch 13/20 train loss 1.2892 acc 0.6072 | val loss 1.3507 acc 0.5929 f1 0.5885 | lr 3.00e-04 | 18.5s <- best
+epoch 14/20 train loss 1.2552 acc 0.6180 | val loss 1.3877 acc 0.5739 f1 0.5663 | lr 3.00e-04 | 18.7s
+epoch 15/20 train loss 1.2297 acc 0.6355 | val loss 1.3865 acc 0.5757 f1 0.5756 | lr 3.00e-04 | 18.3s
+epoch 16/20 train loss 1.2074 acc 0.6381 | val loss 1.3206 acc 0.6071 f1 0.6076 | lr 3.00e-04 | 18.6s <- best
+epoch 17/20 train loss 1.1417 acc 0.6637 | val loss 1.3090 acc 0.6131 f1 0.6114 | lr 3.00e-04 | 18.4s <- best
+epoch 18/20 train loss 1.1303 acc 0.6756 | val loss 1.3412 acc 0.6053 f1 0.6031 | lr 3.00e-04 | 18.4s
+epoch 19/20 train loss 1.0994 acc 0.6832 | val loss 1.3825 acc 0.5875 f1 0.5963 | lr 3.00e-04 | 18.4s
+epoch 20/20 train loss 1.0834 acc 0.6866 | val loss 1.3838 acc 0.5911 f1 0.5842 | lr 3.00e-04 | 18.6s
+TEST accuracy 0.5556 balanced_accuracy 0.5494 f1_macro 0.5465 f1_weighted 0.5517
+best_epoch=17 best_val_accuracy=0.6131 best_val_f1_macro=0.6114 train=374.7s test=0.9s peak_gpu=629 MB
+reports -> C:\Users\quocn\.vscode\trash-image-classification\src\model2\results\vgg16_basic\20261008_150200_009736
+checkpoint -> C:\Users\quocn\.vscode\trash-image-classification\src\model2\checkpoints\vgg16_basic.pt
+summary -> C:\Users\quocn\.vscode\trash-image-classification\src\model2\results\summary.csv

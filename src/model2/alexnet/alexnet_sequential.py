@@ -1,4 +1,4 @@
-"""Improved AlexNet-style classifier with sequential feature extractor."""
+"""Basic AlexNet-style classifier with a sequential feature extractor."""
 
 from torch import Tensor, nn
 
@@ -66,3 +66,6 @@ class AlexNetSequential(nn.Module):
         x = self.features(x)
         x = self.classifier(x)
         return x
+
+
+AlexNetBasic = AlexNetSequential

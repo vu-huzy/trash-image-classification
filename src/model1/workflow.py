@@ -12,6 +12,7 @@ from typing import Callable
 
 import torch
 
+from common.checkpoint import load_checkpoint, save_checkpoint
 from common.data import make_loaders
 from common.engine import run_epoch
 from common.metrics import classification_report
@@ -136,9 +137,9 @@ def run_model_workflow(
                 # Smoke test không được ghi đè checkpoint/report của lần train thật.
                 best_model_state = copy.deepcopy(model.state_dict())
             else:
-                torch.save(
-                    {"model_state": model.state_dict(), "config": config, "epoch": epoch},
+                save_checkpoint(
                     checkpoint_path,
+                    {"model_state": model.state_dict(), "config": config, "epoch": epoch},
                 )
         else:
             wait += 1
@@ -149,7 +150,9 @@ def run_model_workflow(
     if smoke_test:
         model.load_state_dict(best_model_state)
     else:
-        checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
+        checkpoint = load_checkpoint(
+            checkpoint_path, map_location=device, weights_only=False
+        )
         model.load_state_dict(checkpoint["model_state"])
 
     test_stats = run_epoch(

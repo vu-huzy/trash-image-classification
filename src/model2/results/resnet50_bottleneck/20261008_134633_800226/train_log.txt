@@ -1,0 +1,16 @@
+=== Scratch CNN | resnet50_bottleneck ===
+PyTorch=2.14.0+cu130
+device=cuda gpu=NVIDIA GeForce RTX 5050
+amp=bfloat16
+channels_last=True
+splits=train:9542 val:1685 test:864
+classes=9 batch_size=384 image_size=24 workers=0
+parameters=23,518,793 optimizer=AdamW lr=0.0003
+class_counts=[1059.0, 1093.0, 1061.0, 965.0, 1124.0, 1069.0, 992.0, 1095.0, 1084.0]
+class_weights=[1.0011541843414307, 0.9700111746788025, 0.9992669224739075, 1.0986758470535278, 0.9432582259178162, 0.9917888045310974, 1.0687724351882935, 0.9682394862174988, 0.978064775466919]
+SMOKE TEST enabled.
+epoch  1/1 train loss 2.2993 acc 0.1930 | val loss 2.5529 acc 0.1193 f1 0.0465 | lr 3.00e-04 | 19.2s <- best
+TEST accuracy 0.1493 balanced_accuracy 0.1364 f1_macro 0.0493 f1_weighted 0.0537
+best_epoch=1 best_val_accuracy=0.1193 best_val_f1_macro=0.0465 train=19.3s test=0.9s peak_gpu=3079 MB
+reports -> C:\Users\quocn\.vscode\trash-image-classification\src\model2\results\resnet50_bottleneck\20261008_134633_800226
+Smoke test: checkpoint and summary were not changed.

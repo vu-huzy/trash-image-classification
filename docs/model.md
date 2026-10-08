@@ -1,5 +1,8 @@
 # Kế hoạch Model 1 (Simple NN) & Model 2 (Complex CNN) — VN Trash Classification
 
+> Tài liệu này ghi lại kế hoạch kiến trúc ban đầu. Code hiện tại có 4 biến thể
+> Model 1 và 14 biến thể thuộc 7 nhóm kiến trúc Model 2; lệnh train chuẩn được mô tả trong [README](../README.md).
+
 ---
 
 # A. TÓM TẮT
@@ -71,7 +74,8 @@ Kiến trúc 3 conv block tuần tự + BN + AdaptiveAvgPool(4,4) + Dense head �
 - Test accuracy: `62.15%`.
 - Thời gian: ~`27 phút 44 giây` cho 39 epoch (~`6 phút 34 giây`/10 epoch).
 
-Đây là mốc phải vượt qua khi nâng cấp. `src/model1/test.py` cần implement lại M1‑03 trước khi dùng để tái lập baseline.
+Đây là mốc baseline lịch sử. Có thể chạy lại M1‑03 bằng
+`python run.py model1 --models M1-03` sau khi chuẩn bị image cache.
 
 ## A.6 Bảng tổng hợp Model 1
 
@@ -117,7 +121,7 @@ src/
 │   ├── workflow.py          # train/evaluate/checkpoint/report dùng chung
 │   ├── registry.py          # config architecture -> module model
 │   ├── train.py             # CLI điều phối
-│   └── test.py              # entry point ngắn gọn
+
 ├── model2/
 │   ├── blocks.py            # ResidualBlock, ParallelBlock (đa kernel), SEBlock
 │   ├── architectures.py     # Complex CNN M2-01 ... M2-07
