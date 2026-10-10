@@ -152,7 +152,6 @@ with torch.no_grad():
 
         outputs = model(images)
         predictions = outputs.argmax(dim=1)
-
         true_labels.extend(labels.cpu().tolist())
         predicted_labels.extend(predictions.cpu().tolist())
 

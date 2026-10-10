@@ -1,14 +1,26 @@
 """Improved ResNet-18 with eight basic residual blocks."""
 
 from torch import Tensor, nn
+from torchvision.models import ResNet18_Weights, resnet18 as torchvision_resnet18
 
-from model2.resnet.resnet_blocks import BasicBlock
+from .resnet_blocks import BasicBlock
 
 
 class ResNet18(nn.Module):
 
-    def __init__(self, num_classes: int = 9) -> None:
+    def __init__(self, num_classes: int = 9, pretrained: bool = False) -> None:
         super().__init__()
+
+        if pretrained:
+            self.backbone = torchvision_resnet18(weights=ResNet18_Weights.DEFAULT)
+            self.backbone.fc = nn.Sequential(
+                nn.Dropout(0.3),
+                nn.Linear(512, 256),
+                nn.ReLU(inplace=True),
+                nn.Dropout(0.3),
+                nn.Linear(256, num_classes),
+            )
+            return
 
         self.in_channels = 64
 
@@ -55,19 +67,19 @@ class ResNet18(nn.Module):
 
             nn.Flatten(),
 
-            nn.Dropout(0.3),
+            nn.Dropout(0.5),
 
             nn.Linear(
                 512,
-                256
+                128
             ),
 
             nn.ReLU(inplace=True),
 
-            nn.Dropout(0.3),
+            nn.Dropout(0.5),
 
             nn.Linear(
-                256,
+                128,
                 num_classes
             )
         )
@@ -108,6 +120,9 @@ class ResNet18(nn.Module):
 
 
     def forward(self, x: Tensor) -> Tensor:
+
+        if hasattr(self, "backbone"):
+            return self.backbone(x)
 
         x = self.stem(x)
 

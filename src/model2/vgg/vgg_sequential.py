@@ -1,25 +1,30 @@
 """Improved VGG-16 style sequential convolutional feature extractor."""
 
 from torch import Tensor, nn
+from torchvision.models import VGG16_BN_Weights, vgg16_bn
 
 
-class VGG16Sequential(nn.Module):
+class VGGSequential(nn.Module):
 
-    def __init__(self, num_classes: int = 9) -> None:
+    def __init__(self, num_classes: int = 9, pretrained: bool = False) -> None:
         super().__init__()
 
-        self.features = self._features()
+        self.features = (
+            vgg16_bn(weights=VGG16_BN_Weights.DEFAULT).features
+            if pretrained
+            else self._features()
+        )
 
         self.classifier = nn.Sequential(
             nn.AdaptiveAvgPool2d(1),
             nn.Flatten(),
 
-            nn.Linear(512, 256),
+            nn.Linear(512, 128),
             nn.ReLU(inplace=True),
 
-            nn.Dropout(0.5),
+            nn.Dropout(0.6),
 
-            nn.Linear(256, num_classes)
+            nn.Linear(128, num_classes)
         )
 
 

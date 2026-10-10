@@ -1,11 +1,11 @@
-"""Improved residual blocks for ResNet-18 and ResNet-50."""
+"""Các block cơ bản dùng trong ResNet."""
 
 import torch
 from torch import Tensor, nn
 
 
 class BasicBlock(nn.Module):
-
+    """Hai convolution 3x3 và một shortcut."""
     expansion = 1
 
     def __init__(
@@ -16,69 +16,31 @@ class BasicBlock(nn.Module):
     ) -> None:
 
         super().__init__()
-
-
         self.conv1 = nn.Sequential(
-            nn.Conv2d(
-                in_channels,
-                channels,
-                kernel_size=3,
-                stride=stride,
-                padding=1,
-                bias=False
-            ),
+            nn.Conv2d(in_channels, channels, 3, stride, 1, bias=False),
             nn.BatchNorm2d(channels),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
-
-
         self.conv2 = nn.Sequential(
-            nn.Conv2d(
-                channels,
-                channels,
-                kernel_size=3,
-                stride=1,
-                padding=1,
-                bias=False
-            ),
-            nn.BatchNorm2d(channels)
+            nn.Conv2d(channels, channels, 3, padding=1, bias=False),
+            nn.BatchNorm2d(channels),
         )
-
-
         if stride != 1 or in_channels != channels:
             self.shortcut = nn.Sequential(
-                nn.Conv2d(
-                    in_channels,
-                    channels,
-                    kernel_size=1,
-                    stride=stride,
-                    bias=False
-                ),
-                nn.BatchNorm2d(channels)
+                nn.Conv2d(in_channels, channels, 1, stride, bias=False),
+                nn.BatchNorm2d(channels),
             )
         else:
             self.shortcut = nn.Identity()
-
-
         self.relu = nn.ReLU(inplace=True)
-
-
-
     def forward(self, x: Tensor) -> Tensor:
-
-        residual = self.shortcut(x)
-
-        out = self.conv1(x)
-        out = self.conv2(out)
-
-        out += residual
-
-        return self.relu(out)
-
+        shortcut = self.shortcut(x)
+        output = self.conv2(self.conv1(x))
+        return self.relu(output + shortcut)
 
 
 class Bottleneck(nn.Module):
-
+    """Block 1x1 - 3x3 - 1x1 dùng cho ResNet sâu hơn."""
     expansion = 4
 
 
@@ -90,78 +52,30 @@ class Bottleneck(nn.Module):
     ) -> None:
 
         super().__init__()
-
-
         out_channels = channels * self.expansion
-
-
         self.conv1 = nn.Sequential(
-            nn.Conv2d(
-                in_channels,
-                channels,
-                kernel_size=1,
-                bias=False
-            ),
+            nn.Conv2d(in_channels, channels, 1, bias=False),
             nn.BatchNorm2d(channels),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
-
-
         self.conv2 = nn.Sequential(
-            nn.Conv2d(
-                channels,
-                channels,
-                kernel_size=3,
-                stride=stride,
-                padding=1,
-                bias=False
-            ),
+            nn.Conv2d(channels, channels, 3, stride, 1, bias=False),
             nn.BatchNorm2d(channels),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
-
-
         self.conv3 = nn.Sequential(
-            nn.Conv2d(
-                channels,
-                out_channels,
-                kernel_size=1,
-                bias=False
-            ),
-            nn.BatchNorm2d(out_channels)
+            nn.Conv2d(channels, out_channels, 1, bias=False),
+            nn.BatchNorm2d(out_channels),
         )
-
-
         if stride != 1 or in_channels != out_channels:
-
             self.shortcut = nn.Sequential(
-                nn.Conv2d(
-                    in_channels,
-                    out_channels,
-                    kernel_size=1,
-                    stride=stride,
-                    bias=False
-                ),
-                nn.BatchNorm2d(out_channels)
+                nn.Conv2d(in_channels, out_channels, 1, stride, bias=False),
+                nn.BatchNorm2d(out_channels),
             )
-
         else:
-
             self.shortcut = nn.Identity()
-
-
         self.relu = nn.ReLU(inplace=True)
-
-
-
     def forward(self, x: Tensor) -> Tensor:
-
-        residual = self.shortcut(x)
-
-        out = self.conv1(x)
-        out = self.conv2(out)
-        out = self.conv3(out)
-
-        out += residual
-
-        return self.relu(out)
+        shortcut = self.shortcut(x)
+        output = self.conv3(self.conv2(self.conv1(x)))
+        return self.relu(output + shortcut)

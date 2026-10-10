@@ -4,6 +4,28 @@ from torch import Tensor, nn
 import torch
 
 
+class ResidualConvBlock(nn.Module):
+    """Residual convolution stage used after branch fusion."""
+
+    def __init__(self, in_channels: int, out_channels: int) -> None:
+        super().__init__()
+        self.main = nn.Sequential(
+            nn.Conv2d(in_channels, out_channels, 3, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(out_channels, out_channels, 3, padding=1, bias=False),
+            nn.BatchNorm2d(out_channels),
+        )
+        self.shortcut = nn.Sequential(
+            nn.Conv2d(in_channels, out_channels, 1, stride=2, bias=False),
+            nn.BatchNorm2d(out_channels),
+        )
+        self.relu = nn.ReLU(inplace=True)
+
+    def forward(self, x: Tensor) -> Tensor:
+        return self.relu(self.main(x) + self.shortcut(x))
+
+
 class CNNParallel(nn.Module):
     def __init__(self, num_classes: int = 9) -> None:
         super().__init__()
@@ -39,18 +61,17 @@ class CNNParallel(nn.Module):
         )
 
         # Sau concat: 32+32+32 = 96 channels
-        self.fusion = nn.Sequential(
-            nn.Conv2d(96, 128, kernel_size=1),
-            nn.BatchNorm2d(128),
-            nn.ReLU(inplace=True)
+        # Match the three downsampling stages of CNNKernel3Sequential.
+        self.features = nn.Sequential(
+            ResidualConvBlock(96, 64),
+            ResidualConvBlock(64, 128),
+            ResidualConvBlock(128, 192),
         )
-
-        self.pool = nn.MaxPool2d(2)
 
         self.classifier = nn.Sequential(
             nn.AdaptiveAvgPool2d(1),
             nn.Flatten(),
-            nn.Linear(128, 256),
+            nn.Linear(192, 256),
             nn.ReLU(inplace=True),
             nn.Dropout(0.4),
             nn.Linear(256, num_classes)
@@ -65,7 +86,6 @@ class CNNParallel(nn.Module):
 
         x = torch.cat([x1, x2, x3], dim=1)
 
-        x = self.fusion(x)
-        x = self.pool(x)
+        x = self.features(x)
 
         return self.classifier(x)
