@@ -74,6 +74,12 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 
 # 5. Train và Validation
+best_val_loss = float("inf")
+best_weights = None
+best_epoch = 0
+patience = 8
+epochs_without_improvement = 0
+
 for epoch in range(50):
     model.train()
     train_loss = 0
@@ -125,14 +131,30 @@ for epoch in range(50):
     val_metrics = calculate_metrics(val_true_labels, val_predicted_labels)
     val_accuracy = val_metrics["accuracy"]
 
+    # Sao chép trọng số sang RAM để các epoch sau không ghi đè lên bản tốt nhất.
+    if val_loss < best_val_loss:
+        best_val_loss = val_loss
+        best_weights = {name: value.detach().cpu().clone() for name, value in model.state_dict().items()}
+        best_epoch = epoch + 1
+        epochs_without_improvement = 0
+    else:
+        epochs_without_improvement += 1
+
     print(
         f"Epoch {epoch + 1}/50 | "
         f"Train Loss: {train_loss:.4f} | Train Acc: {train_accuracy:.2%} | "
         f"Val Loss: {val_loss:.4f} | Val Acc: {val_accuracy:.2%}"
     )
 
+    # Dừng khi validation loss không giảm trong 8 epoch liên tiếp.
+    if epochs_without_improvement >= patience:
+        print(f"Early stopping tại epoch {epoch + 1}")
+        break
+
 
 # 6. Test
+model.load_state_dict(best_weights)
+print(f"Best epoch: {best_epoch} | Best Val Loss: {best_val_loss:.6f}")
 model.eval()
 true_labels = []
 predicted_labels = []
