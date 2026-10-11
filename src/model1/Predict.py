@@ -4,7 +4,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
-from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
+from sklearn.metrics import classification_report, precision_recall_fscore_support
 
 #Chọn model: m1_01 (MLP) | m1_02 (CNN 2 block) | m1_03 (CNN 3 block) | m1_04 (CNN 3 block + GAP)
 MODEL_NAME = 'm1_03'
@@ -114,5 +114,5 @@ print('Macro Precision:', f'{macro_precision:.4f}')
 print('Macro Recall:', f'{macro_recall:.4f}')
 print('Macro F1:', f'{macro_f1:.4f}')
 print('Weighted F1:', f'{weighted_f1:.4f}')
-print('Confusion Matrix:')
-print(confusion_matrix(true_labels, pred_labels))
+print()
+print(classification_report(true_labels, pred_labels, target_names=class_names, digits=4, zero_division=0))

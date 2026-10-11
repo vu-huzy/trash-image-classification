@@ -4,7 +4,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import models, transforms
 from torchvision.datasets import ImageFolder
-from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
+from sklearn.metrics import classification_report, precision_recall_fscore_support
 
 #Chọn model: 3a_frozen_vgg16 | 3b_frozen_resnet50 | 3b_frozen_efficientnet_b0
 #          | 3c_lora_resnet50 | 3d_full_finetune_resnet50
@@ -85,8 +85,8 @@ head = nn.Sequential(
 )
 model = TransferModel(backbone, head)
 
-#Load model: checkpoints/<MODEL_NAME>.pt
-#Notebook lưu state_dict, code cũ (train.py trong thư mục này) lưu dict {'model_state_dict': state_dict, ...}
+#Load model: checkpoints/<MODEL_NAME>.pt (do notebook lưu ở dòng cuối)
+#Các file cũ trong checkpoints/archive/ là dict {'model_state_dict': state_dict, ...}
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 state = torch.load(HERE / 'checkpoints' / f'{MODEL_NAME}.pt', map_location='cpu')
 model.load_state_dict(state.get('model_state_dict', state))
@@ -121,5 +121,5 @@ print('Macro Precision:', f'{macro_precision:.4f}')
 print('Macro Recall:', f'{macro_recall:.4f}')
 print('Macro F1:', f'{macro_f1:.4f}')
 print('Weighted F1:', f'{weighted_f1:.4f}')
-print('Confusion Matrix:')
-print(confusion_matrix(true_labels, pred_labels))
+print()
+print(classification_report(true_labels, pred_labels, target_names=class_names, digits=4, zero_division=0))

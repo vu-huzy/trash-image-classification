@@ -6,8 +6,9 @@ Trạng thái hiện tại:
 
 - **Dữ liệu**: xong — EDA + pipeline tiền xử lý sinh ra dataset ảnh đã xử lý trên đĩa.
 - **`src/model1`**: 4 notebook `m1_01..04` (MLP → CNN), mỗi notebook lưu `state_dict` vào `src/model1/checkpoints/`; `Predict.py` để dự đoán và kiểm tra kết quả.
-- **`src/model2`**: 5 kiến trúc CNN/VGG/ResNet tự viết; `notebook/` (pipeline đầy đủ, không import file `.py`) và `py/` (kiến trúc + script train); `Predict.py` để kiểm tra. Xem [src/model2/README.md](src/model2/README.md).
-- **`src/model3`**: transfer learning với pretrained backbone (frozen → LoRA → full finetune). Có 2 bản: code framework cũ ở thư mục gốc (`train.py`, `run_all.py`, ...) và bản notebook đơn giản trong `notebook/`; `Predict.py` để kiểm tra. Xem [src/model3/README.md](src/model3/README.md).
+- **`src/model2`**: 5 kiến trúc CNN/VGG/ResNet tự viết; `notebook/` (pipeline đầy đủ, chỉ import `py/metrics.py`); `Predict.py` để kiểm tra. Xem [src/model2/README.md](src/model2/README.md).
+- **`src/model3`**: transfer learning với pretrained backbone (frozen → LoRA → full finetune); 5 notebook đơn giản trong `notebook/` (mỗi notebook lưu `state_dict` vào `checkpoints/`), `Predict.py` để kiểm tra; framework `.py` cũ đã bị xóa. Xem [src/model3/README.md](src/model3/README.md) (mô tả framework cũ).
+- **Kết quả**: ghi chép chi tiết (cấu hình, epoch tốt nhất, chỉ số test, bảng precision/recall/F1/support từng lớp) của cả 14 notebook ở [RESULTS.md](RESULTS.md).
 
 ## Cấu trúc thư mục
 
@@ -21,16 +22,14 @@ trash-image-classification/
 │   └── preprocessing.ipynb  # Bản notebook: quét ảnh, chia train/val, tạo Dataset/DataLoader PyTorch (trong bộ nhớ)
 ├── src/
 │   ├── preprocessing.py     # Bản script: thực hiện lại pipeline như notebook, NHƯNG ghi ảnh đã xử lý ra đĩa
-│   ├── model1/              # m1_01..04 (.ipynb + .py), checkpoints/, Predict.py
-│   ├── model2/              # notebook/ (5 notebook), py/ (kiến trúc + train.py), checkpoints/, results/, Predict.py
+│   ├── model1/              # m1_01..04 (.ipynb), metrics.py, checkpoints/, Predict.py
+│   ├── model2/              # notebook/ (5 notebook), py/metrics.py, checkpoints/, results/, Predict.py
 │   └── model3/              # Transfer learning 3A–3D (xem src/model3/README.md)
 │       ├── notebook/        # 5 notebook đơn giản: 3a, 3b (ResNet50, EfficientNet-B0), 3c, 3d
 │       ├── Predict.py       # Nạp checkpoint và kiểm tra trên tập test
-│       ├── config.py, data.py, backbones.py, heads.py, lora.py, model_builder.py   # framework cũ
-│       ├── engine.py, metrics.py, report.py, train.py, run_all.py
 │       ├── pretrained/      # Weight ImageNet tải về (TORCH_HOME)
-│       ├── checkpoints/     # Trọng số tốt nhất theo val accuracy
-│       └── results/         # metrics.json/history/confusion matrix mỗi run + REPORT.md
+│       ├── checkpoints/     # Trọng số tốt nhất theo val accuracy (notebook ghi vào đây)
+│       └── results/         # Kết quả cũ của framework: metrics.json/history/confusion matrix + REPORT.md
 ├── requirements.txt
 └── .venv/                   # Virtualenv cục bộ (không commit)
 ```
@@ -87,20 +86,27 @@ Kết quả nằm tại `data/VN_trash_classification_preprocessing/`:
 
 ### Model 1 — Simple NN / CNN trên JPEG tiền xử lý
 
-Chạy từng chương trình hoàn chỉnh `src/model1/m1_01.py` đến `m1_04.py` bằng Python 3.11.
-Các chương trình dùng `ImageFolder` trên `data/VN_trash_classification_preprocessing/{train,val,test}`
-(9.542 / 1.685 / 864 ảnh), Adam lr=0.001, batch size 64 và 50 epoch; chọn checkpoint theo validation loss.
-M1-01 nhận ảnh 128×128, M1-02/03/04 nhận 224×224. Flip và ColorJitter chỉ dùng cho train.
-`metrics.py` là phần metric dùng chung. Lịch sử, checkpoint và kết quả được lưu tại
-`reports/model1_preprocessed/`. Giải thích từng dòng và kết quả lần chạy lại:
-[MODEL1_CODE_AND_RESULT.md](docs/MODEL1_CODE_AND_RESULT.md).
+Chạy từng notebook `src/model1/m1_01.ipynb` đến `m1_04.ipynb` (thư mục làm việc là `src/model1`).
+Notebook dùng `ImageFolder` trên `data/VN_trash_classification_preprocessing/{train,val,test}`
+(9.542 / 1.685 / 864 ảnh), Adam lr=0.001, batch size 64, tối đa 50 epoch, early stopping theo validation loss
+(patience 15). M1-01 nhận ảnh 128×128, M1-02/03/04 nhận 224×224; ảnh chỉ được Resize + ToTensor
+(không chuẩn hóa, không augmentation). `metrics.py` là phần metric dùng chung (`calculate_metrics`).
+Các script `.py` cũ của Model 1, `configs/`, `src/common/`, `docs/` và `reports/` đã bị xóa.
 
-| Model | Test accuracy | Macro F1 | Thời gian |
-| --- | ---: | ---: | ---: |
-| M1-01 — MLP | 18.06% | 0.0926 | 22m 30s |
-| M1-02 — CNN 2 block | 56.37% | 0.5565 | 42m 40s |
-| M1-03 — CNN 3 block | **60.30%** | **0.5916** | 38m 15s |
-| M1-04 — CNN 3 block + GAP | 52.66% | 0.5112 | 48m 41s |
+Kết quả lần chạy lại bằng notebook (GPU RTX 5070, DataLoader 8 worker); bảng precision/recall/F1/support từng lớp
+nằm ở [RESULTS.md](RESULTS.md):
+
+| Model | Test accuracy | Macro F1 | Epoch tốt nhất | Thời gian |
+| --- | ---: | ---: | ---: | ---: |
+| M1-01 — MLP | 15.62% | 0.1016 | 45 / 50 | 3.5 phút |
+| M1-02 — CNN 2 block | 45.95% | 0.4531 | 34 (dừng ở 49) | 7.3 phút |
+| M1-03 — CNN 3 block | **48.73%** | **0.4840** | 16 (dừng ở 31) | 5.8 phút |
+| M1-04 — CNN 3 block + GAP | 45.95% | 0.4167 | 50 / 50 | 8.5 phút |
+
+Lưu ý khi đọc bảng: các số cũ (18.06% / 56.37% / 60.30% / 52.66%) đến từ script `.py` cũ có augmentation
+(HFlip + ColorJitter) và chuẩn hóa ImageNet, nên không so sánh trực tiếp được với bảng trên; chưa có thí nghiệm
+riêng để xác định nguyên nhân chênh lệch. M1-04 đạt validation loss thấp nhất đúng ở epoch cuối (50/50), tức là
+vẫn đang cải thiện khi chạm giới hạn 50 epoch. M1-01 gần như không học được (accuracy train 18.76% ở epoch tốt nhất).
 
 Notebook `src/model1/m1_0x.ipynb`: early stopping giữ `best_weights` (val loss thấp nhất) trong RAM;
 ngay sau vòng lặp train, notebook nạp lại `best_weights` vào `model` (vì khi dừng, `model` đang giữ
@@ -111,42 +117,54 @@ trọng số của epoch cuối). Cell cuối cùng lưu `state_dict` của mode
 ### Model 2 — CNN / VGG / ResNet tự viết
 
 5 kiến trúc: `cnn_sequential`, `cnn_parallel`, `vgg_sequential`, `vgg_parallel`, `resnet`. Mỗi notebook trong
-`src/model2/notebook/` là pipeline đầy đủ (dữ liệu → model → train → test → lưu), không import file `.py`;
-`src/model2/py/` giữ cùng kiến trúc dạng module và `train.py`. Mỗi model có đúng 1 file chuẩn
-`src/model2/checkpoints/<model>.pt`, các lần chạy cũ nằm trong `checkpoints/archive/`. Kiểm tra bằng
-`src/model2/Predict.py`. Chi tiết (bảng checkpoint, lưu ý về `resnet`): [src/model2/README.md](src/model2/README.md).
+`src/model2/notebook/` là pipeline đầy đủ (dữ liệu → model → train → test → lưu); file `.py` duy nhất còn lại là
+`src/model2/py/metrics.py` (`calculate_metrics`, notebook import qua `sys.path.append('../py')`). Đường dẫn trong
+notebook là đường dẫn tương đối từ thư mục notebook. Phần test in các chỉ số tổng và bảng
+precision/recall/F1/support từng nhãn (`classification_report`), không có confusion matrix. Mỗi model có đúng 1
+file chuẩn `src/model2/checkpoints/<model>.pt`, các lần chạy cũ nằm trong `checkpoints/archive/`. Kiểm tra bằng
+`src/model2/Predict.py`. Chi tiết (bảng checkpoint, lưu ý về `resnet`): [src/model2/README.md](src/model2/README.md);
+bảng từng lớp: [RESULTS.md](RESULTS.md).
+
+Kết quả lần chạy lại bằng notebook (30 epoch, GPU RTX 5070):
+
+| Model | Test accuracy | Macro F1 | Epoch tốt nhất | Thời gian |
+| --- | ---: | ---: | ---: | ---: |
+| cnn_sequential | 64.12% | 0.6320 | 28 / 30 | 16.0 phút |
+| cnn_parallel | 64.12% | 0.6339 | 27 / 30 | 18.2 phút |
+| vgg_sequential | 73.38% | 0.7217 | 29 / 30 | 29.3 phút |
+| vgg_parallel | **76.04%** | **0.7487** | 28 / 30 | 45.3 phút |
+| resnet | 69.33% | 0.6813 | 30 / 30 | 90.7 phút |
+
+Epoch tốt nhất của cả 5 model nằm ở 27–30 trên 30, tức là chưa model nào ngừng cải thiện trước giới hạn epoch.
+So với checkpoint cũ chọn từ các lần chạy `train.py`, bản notebook thấp hơn 0.8–6.4 điểm accuracy; hai pipeline
+khác nhau nên chưa quy được cho một nguyên nhân. Mỗi model chỉ chạy một lần.
 
 ### Model 3 — transfer learning với pretrained backbone
 
-Bộ 4 thí nghiệm so sánh các chiến lược chuyển giao học tập trên dataset đã tiền xử lý:
+5 notebook trong `src/model3/notebook/` so sánh các chiến lược chuyển giao học tập trên dataset đã tiền xử lý
+(cùng thiết kế: backbone ImageNet + head MLP 512, early stopping theo val accuracy, LoRA tự viết cho 3C).
+Mỗi notebook là pipeline đầy đủ và lưu `state_dict` vào `src/model3/checkpoints/<tên>.pt`; `src/model3/Predict.py`
+(đặt `MODEL_NAME`) nạp checkpoint và in accuracy/F1 + bảng từng lớp trên tập test.
 
-| Biến thể | Backbone | Chiến lược |
-| --- | --- | --- |
-| 3A | MobileNetV2 | Đóng băng toàn bộ, chỉ train MLP head |
-| 3B | ResNet50 / EfficientNet-B0 / ViT-B/16 | Đóng băng toàn bộ, chỉ train MLP head |
-| 3C | backbone thắng ở 3B | Đóng băng + LoRA adapter (tự viết) |
-| 3D | backbone thắng ở 3B | Fine-tune toàn bộ trọng số |
+| Notebook | Backbone | Chiến lược | Test accuracy | Macro F1 | Epoch tốt nhất | Thời gian |
+| --- | --- | --- | ---: | ---: | ---: | ---: |
+| `3a_frozen_vgg16` | VGG16 | Đóng băng, chỉ train head MLP | 82.18% | 0.8162 | 13 (dừng ở 19) | 7.6 phút |
+| `3b_frozen_resnet50` | ResNet50 | Đóng băng, chỉ train head MLP | 93.98% | 0.9363 | 6 (dừng ở 12) | 3.7 phút |
+| `3b_frozen_efficientnet_b0` | EfficientNet-B0 | Đóng băng, chỉ train head MLP | 93.06% | 0.9245 | 12 (dừng ở 18) | 3.2 phút |
+| `3c_lora_resnet50` | ResNet50 | Đóng băng + LoRA (rank 8) ở layer3/layer4 | **96.53%** | **0.9643** | 27 / 30 | 10.7 phút |
+| `3d_full_finetune_resnet50` | ResNet50 | Fine-tune toàn bộ | 92.82% | 0.9234 | 5 (dừng ở 10) | 6.1 phút |
 
-```bash
-.venv/Scripts/python.exe src/model3/run_all.py
-```
-
-**Kết quả tốt nhất**: 3D fine-tune toàn bộ ResNet50 — test accuracy **0.9606**, F1 macro **0.9597**
-(train 284s / 10 epoch trên RTX 5070). LoRA bám rất sát (0.9549) với chỉ 6,4% số tham số trainable
-và 1/3 VRAM. Baseline 3A MobileNetV2 đóng băng đạt 0.8750.
-
-Bản notebook đơn giản (cùng thiết kế: backbone ImageNet + head MLP 512, early stopping theo val accuracy,
-LoRA tự viết cho 3C): `src/model3/notebook/3a_frozen_vgg16`, `3b_frozen_resnet50`, `3b_frozen_efficientnet_b0`,
-`3c_lora_resnet50`, `3d_full_finetune_resnet50`. Mỗi notebook lưu `state_dict` vào `src/model3/checkpoints/<tên>.pt`
-(trùng tên checkpoint của framework cũ, chạy lại sẽ ghi đè). `src/model3/Predict.py` đọc được cả hai định dạng.
-Khác bản cũ: không dùng bf16 autocast, DataLoader không dùng worker.
-
-Chi tiết cấu trúc code, cách chạy từng biến thể và ghi chú kỹ thuật: [src/model3/README.md](src/model3/README.md).
-Kết quả đầy đủ (accuracy, precision/recall/F1 macro + weighted, per-class, thời gian chạy, peak GPU): [src/model3/results/REPORT.md](src/model3/results/REPORT.md).
+Kết quả lần chạy lại bằng notebook (GPU RTX 5070, DataLoader 8 worker, mỗi notebook một lần, seed 42):
+LoRA (3C) tốt nhất, cao hơn fine-tune toàn bộ (3D) 3.7 điểm accuracy; 3D đạt val accuracy cao nhất ở epoch 5 rồi
+không cải thiện trong 5 epoch liên tiếp nên dừng ở epoch 10. Thứ hạng này **ngược** với framework cũ
+(3D 0.9606 > 3C 0.9549) vốn dùng cấu hình huấn luyện khác bản notebook; chưa có thí nghiệm riêng để xác định
+nguyên nhân. Bảng precision/recall/F1/support từng lớp:
+[RESULTS.md](RESULTS.md). Kết quả của framework cũ vẫn nằm ở
+[src/model3/results/REPORT.md](src/model3/results/REPORT.md) (backbone khác: có MobileNetV2 và ViT-B/16).
 
 ## Việc còn thiếu / gợi ý tiếp theo
 
-- Kết quả M1 trên JPEG tiền xử lý được theo dõi trong `docs/MODEL1_CODE_AND_RESULT.md`;
-  kết quả lịch sử trên cache được giữ riêng trong `docs/MODEL1_CODE_AND_RESULTS.md`.
+- Kết quả chi tiết của 14 notebook (Model 1/2/3) nằm trong [RESULTS.md](RESULTS.md); file này được dựng từ
+  output của các notebook, nên cập nhật lại sau mỗi lần chạy lại.
 - Chưa có script tải dữ liệu gốc dù `kagglehub` đã có trong `requirements.txt`.
 - Chưa có test tự động (`pytest`) cho `src/preprocessing.py` và `src/model3`.
