@@ -1,4 +1,4 @@
-"""Run the whole model3 study in order: 3A -> 3B (x3) -> 3C -> 3D.
+"""Run the whole model3 study in order: 3A -> 3B (x2) -> 3C -> 3D.
 
 3C and 3D reuse whichever 3B backbone reached the highest *validation* accuracy,
 so the LoRA and full-fine-tune strategies are compared against the frozen

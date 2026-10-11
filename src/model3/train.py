@@ -3,7 +3,7 @@
 Usage (from the project root, with the venv python):
 
     .venv/Scripts/python.exe src/model3/train.py --experiment 3a
-    .venv/Scripts/python.exe src/model3/train.py --experiment 3b --backbone vit_b_16
+    .venv/Scripts/python.exe src/model3/train.py --experiment 3b --backbone efficientnet_b0
     .venv/Scripts/python.exe src/model3/train.py --experiment 3c --backbone resnet50
     .venv/Scripts/python.exe src/model3/train.py --experiment 3d --backbone resnet50 --epochs 2
 

@@ -20,12 +20,12 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
 
-HERE = Path(__file__).resolve().parent
-SRC = HERE.parent
-if str(SRC) not in sys.path:
-    sys.path.insert(0, str(SRC))
+HERE = Path(__file__).resolve().parent.parent  # src/model2: results/ và checkpoints/ nằm ở đây
+PY_DIR = HERE / "py"
+if str(PY_DIR) not in sys.path:
+    sys.path.insert(0, str(PY_DIR))
 
-from model2.models import build_models
+from models import build_models
 
 PROJECT = HERE.parent.parent
 DEFAULT_DATA = PROJECT / "data" / "VN_trash_classification_preprocessing"

@@ -5,8 +5,8 @@ Bốn biến thể chuyển giao học tập (transfer learning) trên bộ dữ
 
 | Biến thể | Backbone | Chiến lược | Ý tưởng |
 | --- | --- | --- | --- |
-| **3A** | MobileNetV2 | `frozen` | Đóng băng toàn bộ backbone nhẹ, chỉ train MLP head — baseline rẻ nhất |
-| **3B** | ResNet50, EfficientNet-B0, ViT-B/16 | `frozen` | Cùng công thức như 3A nhưng backbone mạnh hơn → so sánh chất lượng đặc trưng ImageNet |
+| **3A** | VGG16 | `frozen` | Đóng băng toàn bộ VGG16 (giữ 2 lớp fc pretrained → đặc trưng 4096-d), chỉ train MLP head — baseline |
+| **3B** | ResNet50, EfficientNet-B0 | `frozen` | Cùng công thức như 3A nhưng backbone mạnh hơn → so sánh chất lượng đặc trưng ImageNet |
 | **3C** | backbone thắng ở 3B | `lora` | Backbone vẫn đóng băng, nhưng chèn LoRA adapter để đặc trưng thích nghi với domain rác VN |
 | **3D** | backbone thắng ở 3B | `full_finetune` | Mở băng toàn bộ, fine-tune mọi trọng số |
 
@@ -28,8 +28,8 @@ src/model3/
 ├── metrics.py         # acc / precision / recall / F1, confusion matrix, learning curve
 ├── report.py          # Tổng hợp mọi run → results/summary.csv + results/REPORT.md
 ├── train.py           # CLI chạy 1 thí nghiệm
-├── run_all.py         # Chạy tuần tự 3A → 3B(x3) → 3C → 3D rồi sinh báo cáo
-├── pretrained/        # Nơi tải weight ImageNet (TORCH_HOME), ~484 MB cho 4 backbone
+├── run_all.py         # Chạy tuần tự 3A → 3B(x2) → 3C → 3D rồi sinh báo cáo
+├── pretrained/        # Nơi tải weight ImageNet (TORCH_HOME), ~990 MB cho VGG16/ResNet50/EfficientNet-B0 + các weight cũ MobileNetV2/ViT
 ├── checkpoints/       # <run>.pt — trọng số tốt nhất theo val accuracy
 └── results/           # <run>/{metrics.json, history.csv, curves.png, confusion_matrix_test.png,
                        #         classification_report_test.txt, train_log.txt}
@@ -59,13 +59,13 @@ Chạy riêng một biến thể:
 
 ```bash
 .venv/Scripts/python.exe src/model3/train.py --experiment 3a
-.venv/Scripts/python.exe src/model3/train.py --experiment 3b --backbone vit_b_16
+.venv/Scripts/python.exe src/model3/train.py --experiment 3b --backbone efficientnet_b0
 .venv/Scripts/python.exe src/model3/train.py --experiment 3c --backbone resnet50
 .venv/Scripts/python.exe src/model3/train.py --experiment 3d --backbone resnet50
 ```
 
 Các cờ hữu ích của `run_all.py`: `--only 3c 3d` (chỉ chạy một số biến thể),
-`--winner vit_b_16` (ép backbone cho 3C/3D thay vì lấy từ 3B), `--skip-existing`
+`--winner resnet50` (ép backbone cho 3C/3D thay vì lấy từ 3B), `--skip-existing`
 (bỏ qua run đã có `metrics.json`), `--epochs N`, `--batch-size N`, `--no-amp`.
 
 Sinh lại báo cáo từ các run đã có:
@@ -84,44 +84,47 @@ Mỗi run ghi lại: accuracy, balanced accuracy, precision/recall/F1 ở cả d
 epoch tốt nhất, tổng thời gian train, thời gian mỗi epoch, tốc độ inference (img/s),
 peak GPU memory, và số tham số trainable so với tổng tham số.
 
-Kết quả một lần chạy đầy đủ (RTX 5070, 8 run, tổng 75,6 phút GPU), sắp theo test accuracy:
+Kết quả (RTX 5070, 5 run, sắp theo test accuracy). **Chỉ 3A (VGG16) được chạy lại** sau khi đổi
+thiết kế; 4 run còn lại (3B ×2, 3C, 3D — ResNet50/EfficientNet-B0) là kết quả của lần chạy đầy đủ
+trước đó, code của chúng không đổi:
 
 | Biến thể | Backbone | Chiến lược | Trainable | Val acc | **Test acc** | Test F1 macro | Train | Peak GPU |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 3D | ResNet50 | full finetune | 24,6M | 0.9484 | **0.9606** | **0.9597** | 284s / 10 ep | 1785 MB |
 | 3C | ResNet50 | LoRA | 1,57M | 0.9543 | 0.9549 | 0.9536 | 1037s / 29 ep | 630 MB |
-| 3C | ViT-B/16 | LoRA | 1,14M | 0.9389 | 0.9537 | 0.9501 | 1450s / 30 ep | 2530 MB |
-| 3D | ViT-B/16 | full finetune | 86,2M | 0.9442 | 0.9468 | 0.9470 | 795s / 17 ep | 3476 MB |
-| 3B | ViT-B/16 | frozen | 399K | 0.9169 | 0.9317 | 0.9284 | 130s / 10 ep | 770 MB |
 | 3B | ResNet50 | frozen | 1,05M | 0.9341 | 0.9294 | 0.9227 | 163s / 13 ep | 851 MB |
 | 3B | EfficientNet-B0 | frozen | 662K | 0.9122 | 0.9201 | 0.9132 | 132s / 10 ep | 472 MB |
-| 3A | MobileNetV2 | frozen | 662K | 0.8991 | 0.8750 | 0.8714 | 279s / 15 ep | 785 MB |
+| 3A | VGG16 | frozen | 2,10M | 0.8617 | 0.8380 | 0.8330 | 138s / 9 ep | 2910 MB |
+
+> **Lịch sử thay đổi thiết kế.** Ban đầu 3A là MobileNetV2 và 3B/3C/3D có thêm ViT-B/16. Cả hai
+> đã bị bỏ: 3A đổi sang VGG16, ViT-B/16 bị gỡ khỏi toàn bộ nghiên cứu (3C/3D chỉ còn ResNet50).
+> Kết quả cũ được giữ nguyên trong `results/_removed/` (không nằm trong `summary.csv`/`REPORT.md`):
+> MobileNetV2 frozen test 0.8750; ViT-B/16 frozen 0.9317, LoRA 0.9537, full finetune 0.9468.
 
 ### Nhận xét
 
-1. **Đổi backbone là đòn bẩy rẻ nhất.** Giữ nguyên head và công thức train, chỉ thay MobileNetV2
-   (3A) bằng ResNet50/ViT (3B) đã tăng test accuracy từ 0.875 lên ~0.93 — hơn 5 điểm mà không
-   train thêm tham số nào.
-2. **frozen → LoRA → full finetune tăng dần đúng như kỳ vọng** (ResNet50: 0.929 → 0.955 → 0.961).
+1. **VGG16 frozen là baseline yếu nhất: 0.838**, thấp hơn ResNet50 frozen 9 điểm và thấp hơn cả
+   MobileNetV2 frozen cũ (0.875) dù trainable gấp ~3 lần (2,1M) và tổng 136M tham số. Nó overfit
+   rất sớm: epoch tốt nhất là epoch 3, đến epoch 9 train acc đạt 0.978 trong khi val chỉ 0.853.
+   Đặc trưng fc7 4096-d của VGG16 làm head 512 nút học thuộc train nhanh nhưng không tổng quát hoá
+   tốt bằng đặc trưng ResNet50/EfficientNet. Điểm yếu nằm ở `Other` (precision 0.59) và `PET`
+   (precision 0.68). VGG16 cũng tốn peak GPU nhiều nhất (2910 MB) dù đóng băng.
+2. **Đổi backbone là đòn bẩy rẻ nhất.** Giữ nguyên head và công thức train, chỉ thay VGG16 (3A)
+   bằng ResNet50/EfficientNet-B0 (3B) đã tăng test accuracy từ 0.838 lên 0.92–0.93.
+3. **frozen → LoRA → full finetune tăng dần đúng như kỳ vọng** (ResNet50: 0.929 → 0.955 → 0.961).
    Cho backbone thích nghi với domain rác VN đáng giá ~2,5–3 điểm so với dùng nguyên đặc trưng ImageNet.
-3. **LoRA tiết kiệm bộ nhớ và tham số, nhưng KHÔNG tiết kiệm thời gian.** 3C đạt 0.9549 với 1,57M
+4. **LoRA tiết kiệm bộ nhớ và tham số, nhưng KHÔNG tiết kiệm thời gian.** 3C đạt 0.9549 với 1,57M
    tham số trainable (6,4% của 3D) và peak GPU thấp hơn 2,8 lần (630 MB vs 1785 MB) — gần bằng
    full finetune. Nhưng lại train lâu hơn 3,7 lần (1037s vs 284s) vì gradient vẫn phải chảy ngược
    qua toàn bộ backbone y như full finetune, cộng thêm hội tụ chậm hơn (29 epoch vs 10).
    LoRA có lợi khi thiếu **VRAM**, không phải khi thiếu **thời gian**.
-4. **ViT-B/16 không thắng ResNet50 ở quy mô dữ liệu này.** ViT cần nhiều dữ liệu hơn để fine-tune
-   hiệu quả; với 9.542 ảnh train thì ResNet50 (weights `IMAGENET1K_V2`) tốt hơn ở cả LoRA lẫn full
-   finetune, lại nhẹ hơn 3,5 lần và nhanh hơn. Đáng chú ý: ViT full finetune (0.9468) còn *thua*
-   ViT LoRA (0.9537) — dấu hiệu 86M tham số bị overfit trên tập train nhỏ, trong khi LoRA chỉ cho
-   phép model dịch chuyển trong không gian hạng thấp nên đóng vai trò như một dạng regularization.
 5. **Lớp khó nhất là nhóm nhựa/xốp.** Ở model tốt nhất (3D ResNet50), `PET` có precision tuyệt đối
    1.000 nhưng recall thấp nhất 0.902 — bỏ sót 10 ảnh, chủ yếu đoán nhầm sang `Alu` (4 ảnh, đều là
    vỏ chai/lon sáng bóng) và `Plastic_cup` (3 ảnh). Chiều ngược lại, `Plastic_cup` bị nhầm thành
    `Foam_box` 6 ảnh. Muốn cải thiện tiếp nên tập trung vào cụm `PET ↔ Plastic_cup ↔ Foam_box`.
-6. **Val và test không luôn xếp cùng thứ tự.** Ở 3B, ResNet50 thắng theo val (0.9341 vs 0.9169)
-   nhưng ViT lại cao hơn trên test (0.9317 vs 0.9294). Việc chọn backbone cho 3C/3D vẫn dựa trên
-   val (đúng quy trình, test chỉ dùng một lần ở cuối), nhưng đây là lời nhắc rằng chênh lệch
-   ~1 điểm trên tập test 864 ảnh nằm trong khoảng nhiễu.
+6. **Chênh lệch nhỏ nằm trong khoảng nhiễu.** 3D hơn 3C 0.57 điểm ≈ 5 ảnh trên 864 ảnh test, và
+   cùng cấu hình chạy lại có thể lệch ±1–2% (xem mục tái lập bên dưới). Chênh lệch lớn (VGG16 so
+   với ResNet50, frozen so với LoRA/finetune) thì đủ lớn để tin.
 
 ## Chi tiết kỹ thuật đáng lưu ý
 
@@ -132,13 +135,14 @@ Kết quả một lần chạy đầy đủ (RTX 5070, 8 run, tổng 75,6 phút 
   running statistics vẫn âm thầm trôi theo từng epoch và đặc trưng "đóng băng" thực ra không còn đóng băng.
 - **LoRA đặt ở đâu**: `nn.MultiheadAttention` của PyTorch truyền `in_proj_weight` và
   `out_proj.weight` trực tiếp như tensor vào `F.multi_head_attention_forward` chứ không gọi
-  submodule, nên bọc adapter vào đó sẽ bị bỏ qua hoặc lỗi. Vì vậy với ViT, adapter được chèn
-  vào các lớp `Linear` trong MLP của **mọi** transformer block (24 lớp, rank 8 ≈ 737K tham số);
-  với CNN thì chèn vào các `Conv2d` ở những stage cuối (xem `lora_target_prefixes` trong
-  [`backbones.py`](backbones.py)).
+  submodule, nên bọc adapter vào đó sẽ bị bỏ qua hoặc lỗi (liên quan nếu thêm lại ViT: adapter
+  phải đặt vào các `Linear` trong MLP của transformer block). Hiện chỉ còn CNN nên adapter chèn vào
+  các `Conv2d` ở những stage cuối (xem `lora_target_prefixes` trong [`backbones.py`](backbones.py));
+  `LoRALinear` vẫn còn trong `lora.py` nhưng không được dùng. VGG16 chỉ chạy frozen nên
+  `lora_target_prefixes=()`.
 - **Learning rate**: head luôn `1e-3`. Backbone dùng LR nhỏ hơn — LoRA `1e-3` (adapter khởi tạo 0
-  nên chịu được LR lớn), full finetune `1e-5` cho ViT và `1e-4` cho CNN để không phá đặc trưng
-  pretrained trong vài bước đầu.
+  nên chịu được LR lớn), full finetune `1e-4` để không phá đặc trưng pretrained trong vài bước đầu
+  (trước đây ViT dùng `1e-5`, nhánh này đã bỏ cùng ViT).
 - **Augmentation on-the-fly nhẹ** (flip + color jitter nhỏ) được thêm lên ảnh đã tiền xử lý, vì
   augmentation trong `src/preprocessing.py` đã bị "đóng băng" một lần khi ghi ra đĩa — train 30
   epoch trên đúng một bản augmentation sẽ overfit nhanh hơn.

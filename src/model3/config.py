@@ -2,7 +2,7 @@
 
 Four variants are compared:
 
-    3A  frozen MobileNetV2       -> train only the MLP head (cheapest baseline)
+    3A  frozen VGG16             -> train only the MLP head (baseline)
     3B  frozen strong backbones  -> train only the MLP head (backbone comparison)
     3C  LoRA on the 3B winner    -> train MLP head + low-rank adapters
     3D  full fine-tune           -> train every weight of the 3B winner
@@ -39,12 +39,12 @@ IMAGENET_STD = (0.229, 0.224, 0.225)
 RANDOM_SEED = 42
 NUM_WORKERS = 4
 
-# Backbone used by 3A. Kept as a constant because 3A is defined as "the light one".
-LIGHT_BACKBONE = "mobilenet_v2"
+# Backbone used by 3A. Kept as a constant because 3A is defined as "the VGG baseline".
+BASELINE_BACKBONE = "vgg16"
 
 # Candidate backbones for 3B. The winner (highest validation accuracy) is reused
 # by 3C and 3D so the three strategies are compared on identical features.
-STRONG_BACKBONES = ("resnet50", "efficientnet_b0", "vit_b_16")
+STRONG_BACKBONES = ("resnet50", "efficientnet_b0")
 
 
 @dataclass
@@ -85,13 +85,13 @@ class ExperimentConfig:
 
 
 def experiment_3a() -> ExperimentConfig:
-    """3A - freeze a light backbone entirely, train only the MLP head."""
+    """3A - freeze VGG16 entirely, train only the MLP head."""
     return ExperimentConfig(
-        name=f"3a_frozen_{LIGHT_BACKBONE}",
+        name=f"3a_frozen_{BASELINE_BACKBONE}",
         variant="3A",
-        backbone=LIGHT_BACKBONE,
+        backbone=BASELINE_BACKBONE,
         strategy="frozen",
-        description="Freeze all of MobileNetV2, train only the MLP head",
+        description="Freeze all of VGG16, train only the MLP head",
         batch_size=64,
         head_lr=1e-3,
     )
@@ -133,9 +133,7 @@ def experiment_3c(backbone: str) -> ExperimentConfig:
 
 def experiment_3d(backbone: str) -> ExperimentConfig:
     """3D - unfreeze everything and fine-tune the whole network."""
-    # Transformers need a markedly smaller LR than CNNs to avoid wrecking the
-    # pretrained features in the first few steps.
-    backbone_lr = 1e-5 if backbone.startswith("vit") else 1e-4
+    backbone_lr = 1e-4
     return ExperimentConfig(
         name=f"3d_full_finetune_{backbone}",
         variant="3D",

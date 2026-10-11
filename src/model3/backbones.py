@@ -23,20 +23,22 @@ class BackboneSpec:
 
     torchvision_name: str
     weights_name: str  # entry of the model's weight enum
-    classifier_attr: str  # attribute replaced by nn.Identity()
+    classifier_attr: str  # (dotted) attribute replaced by nn.Identity()
     expected_feature_dim: int  # asserted against a real forward pass
     lora_target_prefixes: tuple[str, ...]  # where LoRA may be injected (see lora.py)
     label: str
 
 
 BACKBONES: dict[str, BackboneSpec] = {
-    "mobilenet_v2": BackboneSpec(
-        torchvision_name="mobilenet_v2",
+    "vgg16": BackboneSpec(
+        torchvision_name="vgg16",
         weights_name="IMAGENET1K_V1",
-        classifier_attr="classifier",
-        expected_feature_dim=1280,
-        lora_target_prefixes=("features.14", "features.15", "features.16", "features.17"),
-        label="MobileNetV2",
+        # Only the last Linear (4096 -> 1000) is dropped, so the two pretrained
+        # fc layers are kept and the feature vector is the 4096-d fc7 output.
+        classifier_attr="classifier.6",
+        expected_feature_dim=4096,
+        lora_target_prefixes=(),  # VGG16 is only used frozen (3A), never with LoRA
+        label="VGG16",
     ),
     "resnet50": BackboneSpec(
         torchvision_name="resnet50",
@@ -53,14 +55,6 @@ BACKBONES: dict[str, BackboneSpec] = {
         expected_feature_dim=1280,
         lora_target_prefixes=("features.5", "features.6", "features.7"),
         label="EfficientNet-B0",
-    ),
-    "vit_b_16": BackboneSpec(
-        torchvision_name="vit_b_16",
-        weights_name="IMAGENET1K_V1",
-        classifier_attr="heads",
-        expected_feature_dim=768,
-        lora_target_prefixes=("encoder.layers",),
-        label="ViT-B/16",
     ),
 }
 
@@ -81,7 +75,10 @@ def create_backbone(name: str) -> tuple[nn.Module, int, BackboneSpec]:
     backbone = tv_models.get_model(spec.torchvision_name, weights=weights)
 
     # Drop the ImageNet classifier - we only want the features it was fed.
-    setattr(backbone, spec.classifier_attr, nn.Identity())
+    # classifier_attr may be a dotted path such as "classifier.6" (VGG).
+    parent_path, _, attr = spec.classifier_attr.rpartition(".")
+    parent = backbone.get_submodule(parent_path) if parent_path else backbone
+    setattr(parent, attr, nn.Identity())
 
     feature_dim = _measure_feature_dim(backbone)
     if feature_dim != spec.expected_feature_dim:

@@ -2,11 +2,11 @@
 
 from torch import nn
 
-from model2.cnn.cnn_sequential import CNNSequential
-from model2.cnn.cnn_parallel import CNNParallel
-from model2.resnet.resnet18 import ResNet18
-from model2.vgg.vgg_parallel import VGGParallel
-from model2.vgg.vgg_sequential import VGGSequential
+from cnn.cnn_sequential import CNNSequential
+from cnn.cnn_parallel import CNNParallel
+from resnet.resnet18 import ResNet18
+from vgg.vgg_parallel import VGGParallel
+from vgg.vgg_sequential import VGGSequential
 
 
 def build_models(

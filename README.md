@@ -5,8 +5,9 @@ Dự án phân loại rác thải Việt Nam bằng ảnh (Vietnamese trash imag
 Trạng thái hiện tại:
 
 - **Dữ liệu**: xong — EDA + pipeline tiền xử lý sinh ra dataset ảnh đã xử lý trên đĩa.
-- **`src/model3`**: xong — bộ 4 thí nghiệm transfer learning với pretrained backbone (frozen → LoRA → full finetune), có checkpoint và báo cáo chỉ số đầy đủ. Xem [src/model3/README.md](src/model3/README.md).
-- **`src/model1`, `src/model2`**: chưa triển khai (file `test.py` còn trống).
+- **`src/model1`**: 4 notebook `m1_01..04` (MLP → CNN), mỗi notebook lưu `state_dict` vào `src/model1/checkpoints/`; `Predict.py` để dự đoán và kiểm tra kết quả.
+- **`src/model2`**: 5 kiến trúc CNN/VGG/ResNet tự viết; `notebook/` (pipeline đầy đủ, không import file `.py`) và `py/` (kiến trúc + script train); `Predict.py` để kiểm tra. Xem [src/model2/README.md](src/model2/README.md).
+- **`src/model3`**: transfer learning với pretrained backbone (frozen → LoRA → full finetune). Có 2 bản: code framework cũ ở thư mục gốc (`train.py`, `run_all.py`, ...) và bản notebook đơn giản trong `notebook/`; `Predict.py` để kiểm tra. Xem [src/model3/README.md](src/model3/README.md).
 
 ## Cấu trúc thư mục
 
@@ -20,10 +21,12 @@ trash-image-classification/
 │   └── preprocessing.ipynb  # Bản notebook: quét ảnh, chia train/val, tạo Dataset/DataLoader PyTorch (trong bộ nhớ)
 ├── src/
 │   ├── preprocessing.py     # Bản script: thực hiện lại pipeline như notebook, NHƯNG ghi ảnh đã xử lý ra đĩa
-│   ├── model1/test.py       # Placeholder — chưa có code
-│   ├── model2/test.py       # Placeholder — chưa có code
+│   ├── model1/              # m1_01..04 (.ipynb + .py), checkpoints/, Predict.py
+│   ├── model2/              # notebook/ (5 notebook), py/ (kiến trúc + train.py), checkpoints/, results/, Predict.py
 │   └── model3/              # Transfer learning 3A–3D (xem src/model3/README.md)
-│       ├── config.py, data.py, backbones.py, heads.py, lora.py, model_builder.py
+│       ├── notebook/        # 5 notebook đơn giản: 3a, 3b (ResNet50, EfficientNet-B0), 3c, 3d
+│       ├── Predict.py       # Nạp checkpoint và kiểm tra trên tập test
+│       ├── config.py, data.py, backbones.py, heads.py, lora.py, model_builder.py   # framework cũ
 │       ├── engine.py, metrics.py, report.py, train.py, run_all.py
 │       ├── pretrained/      # Weight ImageNet tải về (TORCH_HOME)
 │       ├── checkpoints/     # Trọng số tốt nhất theo val accuracy
@@ -99,6 +102,20 @@ M1-01 nhận ảnh 128×128, M1-02/03/04 nhận 224×224. Flip và ColorJitter c
 | M1-03 — CNN 3 block | **60.30%** | **0.5916** | 38m 15s |
 | M1-04 — CNN 3 block + GAP | 52.66% | 0.5112 | 48m 41s |
 
+Notebook `src/model1/m1_0x.ipynb`: early stopping giữ `best_weights` (val loss thấp nhất) trong RAM;
+ngay sau vòng lặp train, notebook nạp lại `best_weights` vào `model` (vì khi dừng, `model` đang giữ
+trọng số của epoch cuối). Cell cuối cùng lưu `state_dict` của model tốt nhất ra
+`src/model1/checkpoints/m1_0x.pt` (thư mục đã nằm trong `.gitignore`). Sau khi chạy notebook, đặt
+`MODEL_NAME` trong `src/model1/Predict.py` rồi chạy file đó để xem dự đoán và accuracy/F1 trên tập test.
+
+### Model 2 — CNN / VGG / ResNet tự viết
+
+5 kiến trúc: `cnn_sequential`, `cnn_parallel`, `vgg_sequential`, `vgg_parallel`, `resnet`. Mỗi notebook trong
+`src/model2/notebook/` là pipeline đầy đủ (dữ liệu → model → train → test → lưu), không import file `.py`;
+`src/model2/py/` giữ cùng kiến trúc dạng module và `train.py`. Mỗi model có đúng 1 file chuẩn
+`src/model2/checkpoints/<model>.pt`, các lần chạy cũ nằm trong `checkpoints/archive/`. Kiểm tra bằng
+`src/model2/Predict.py`. Chi tiết (bảng checkpoint, lưu ý về `resnet`): [src/model2/README.md](src/model2/README.md).
+
 ### Model 3 — transfer learning với pretrained backbone
 
 Bộ 4 thí nghiệm so sánh các chiến lược chuyển giao học tập trên dataset đã tiền xử lý:
@@ -117,6 +134,12 @@ Bộ 4 thí nghiệm so sánh các chiến lược chuyển giao học tập tr�
 **Kết quả tốt nhất**: 3D fine-tune toàn bộ ResNet50 — test accuracy **0.9606**, F1 macro **0.9597**
 (train 284s / 10 epoch trên RTX 5070). LoRA bám rất sát (0.9549) với chỉ 6,4% số tham số trainable
 và 1/3 VRAM. Baseline 3A MobileNetV2 đóng băng đạt 0.8750.
+
+Bản notebook đơn giản (cùng thiết kế: backbone ImageNet + head MLP 512, early stopping theo val accuracy,
+LoRA tự viết cho 3C): `src/model3/notebook/3a_frozen_vgg16`, `3b_frozen_resnet50`, `3b_frozen_efficientnet_b0`,
+`3c_lora_resnet50`, `3d_full_finetune_resnet50`. Mỗi notebook lưu `state_dict` vào `src/model3/checkpoints/<tên>.pt`
+(trùng tên checkpoint của framework cũ, chạy lại sẽ ghi đè). `src/model3/Predict.py` đọc được cả hai định dạng.
+Khác bản cũ: không dùng bf16 autocast, DataLoader không dùng worker.
 
 Chi tiết cấu trúc code, cách chạy từng biến thể và ghi chú kỹ thuật: [src/model3/README.md](src/model3/README.md).
 Kết quả đầy đủ (accuracy, precision/recall/F1 macro + weighted, per-class, thời gian chạy, peak GPU): [src/model3/results/REPORT.md](src/model3/results/REPORT.md).

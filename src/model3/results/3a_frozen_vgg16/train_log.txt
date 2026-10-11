@@ -1,0 +1,25 @@
+=== 3A | 3a_frozen_vgg16 ===
+Freeze all of VGG16, train only the MLP head
+device=cuda amp=bfloat16 batch_size=64
+splits={'train': 9542, 'val': 1685, 'test': 864} classes=9
+backbone=VGG16 (4096-d features)  head=MLP(4096->512->9, dropout=0.3)
+strategy=frozen  trainable=2,103,305 / 136,363,849 params (1.54%)
+optimizer=AdamW head_lr=0.001 backbone_lr=0.0
+
+  epoch  1/30  train loss 0.6747 acc 0.7796  |  val loss 0.4906 acc 0.8386 f1 0.8374  |  27.7s  <- best
+  epoch  2/30  train loss 0.4101 acc 0.8670  |  val loss 0.4703 acc 0.8499 f1 0.8482  |  9.5s  <- best
+  epoch  3/30  train loss 0.2796 acc 0.9069  |  val loss 0.4799 acc 0.8617 f1 0.8617  |  9.6s  <- best
+  epoch  4/30  train loss 0.2299 acc 0.9253  |  val loss 0.4816 acc 0.8558 f1 0.8551  |  9.6s
+  epoch  5/30  train loss 0.1753 acc 0.9456  |  val loss 0.5052 acc 0.8605 f1 0.8597  |  9.6s
+  epoch  6/30  train loss 0.1386 acc 0.9544  |  val loss 0.5260 acc 0.8528 f1 0.8524  |  9.6s
+  epoch  7/30  train loss 0.1126 acc 0.9648  |  val loss 0.5394 acc 0.8617 f1 0.8616  |  9.6s
+  epoch  8/30  train loss 0.0991 acc 0.9689  |  val loss 0.5661 acc 0.8582 f1 0.8580  |  9.6s
+  epoch  9/30  train loss 0.0782 acc 0.9778  |  val loss 0.5583 acc 0.8528 f1 0.8521  |  9.6s
+  early stopping: no val improvement for 6 epochs
+
+restored best checkpoint from epoch 3
+VAL   acc 0.8617  f1_macro 0.8617  precision_macro 0.8642  recall_macro 0.8619
+TEST  acc 0.8380  f1_macro 0.8330  precision_macro 0.8392  recall_macro 0.8400
+train time 138.3s over 9 epochs (11.6s/epoch), peak GPU 2910 MB
+inference: 884 img/s end-to-end (test loader) | 1060 img/s model-only (60.4 ms / batch of 64)
+artefacts -> C:\dl-project\trash-image-classification\src\model3\results\3a_frozen_vgg16
