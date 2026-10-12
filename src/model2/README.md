@@ -39,8 +39,11 @@ is `calculate_metrics` from `py/metrics.py`.
 - **Paths** are relative to the notebook's own folder (open the notebook and
   press Run, no setup): data in `../../../data/VN_trash_classification_preprocessing`,
   weights in `../checkpoints`, metrics in `../py`.
-- **Training**: 30 epochs, batch 32, AdamW + cosine schedule, class-weighted
-  loss. The weights with the best validation accuracy are kept in RAM and loaded
+- **Preprocessing**: train uses Resize(224, 224), RandomHorizontalFlip, ColorJitter
+  (brightness/contrast/saturation 0.1), ToTensor and ImageNet Normalize. Validation
+  and test use Resize, ToTensor and the same Normalize.
+- **Training**: up to 30 epochs, batch 32, AdamW + cosine schedule, class-weighted
+  loss. Early stopping monitors validation accuracy with `PATIENCE = 15`. The weights with the best validation accuracy are kept in RAM and loaded
   back into the model after the loop.
 - **Test**: `calculate_metrics` prints accuracy, macro precision / recall / F1
   and weighted F1; then `classification_report` prints precision, recall, F1 and
@@ -60,6 +63,7 @@ overwrites its file with that run's best-validation weights; the files that were
 there before (and every other older run) are in `checkpoints/archive/`, nothing
 was deleted.
 
+The results below predate the preprocessing and early-stopping update.
 All five `<model>.pt` files below come from the notebook run of 2026-10-11 (RTX 5070,
 8 DataLoader workers). Per-class precision / recall / F1 / support for each model is
 in [../../RESULTS.md](../../RESULTS.md).

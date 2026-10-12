@@ -88,12 +88,13 @@ Kết quả nằm tại `data/VN_trash_classification_preprocessing/`:
 
 Chạy từng notebook `src/model1/m1_01.ipynb` đến `m1_04.ipynb` (thư mục làm việc là `src/model1`).
 Notebook dùng `ImageFolder` trên `data/VN_trash_classification_preprocessing/{train,val,test}`
-(9.542 / 1.685 / 864 ảnh), Adam lr=0.001, batch size 64, tối đa 50 epoch, early stopping theo validation loss
-(patience 15). M1-01 nhận ảnh 128×128, M1-02/03/04 nhận 224×224; ảnh chỉ được Resize + ToTensor
-(không chuẩn hóa, không augmentation). `metrics.py` là phần metric dùng chung (`calculate_metrics`).
+(9.542 / 1.685 / 864 ảnh), Adam lr=0.001, batch size 64, tối đa 50 epoch, early stopping theo validation accuracy
+(patience 15). M1-01 nhận ảnh 128×128, M1-02/03/04 nhận 224×224; train dùng Resize + RandomHorizontalFlip + ColorJitter + ToTensor + Normalize ImageNet;
+val/test dùng Resize + ToTensor + Normalize ImageNet. `metrics.py` là phần metric dùng chung (`calculate_metrics`).
 Các script `.py` cũ của Model 1, `configs/`, `src/common/`, `docs/` và `reports/` đã bị xóa.
 
-Kết quả lần chạy lại bằng notebook (GPU RTX 5070, DataLoader 8 worker); bảng precision/recall/F1/support từng lớp
+Bảng dưới là kết quả trước khi thêm Normalize/augmentation và đổi checkpoint sang max val accuracy
+(GPU RTX 5070, DataLoader 8 worker); bảng precision/recall/F1/support từng lớp
 nằm ở [RESULTS.md](RESULTS.md):
 
 | Model | Test accuracy | Macro F1 | Epoch tốt nhất | Thời gian |
@@ -108,7 +109,7 @@ Lưu ý khi đọc bảng: các số cũ (18.06% / 56.37% / 60.30% / 52.66%) đ�
 riêng để xác định nguyên nhân chênh lệch. M1-04 đạt validation loss thấp nhất đúng ở epoch cuối (50/50), tức là
 vẫn đang cải thiện khi chạm giới hạn 50 epoch. M1-01 gần như không học được (accuracy train 18.76% ở epoch tốt nhất).
 
-Notebook `src/model1/m1_0x.ipynb`: early stopping giữ `best_weights` (val loss thấp nhất) trong RAM;
+Notebook `src/model1/m1_0x.ipynb`: early stopping giữ `best_weights` (val accuracy cao nhất) trong RAM;
 ngay sau vòng lặp train, notebook nạp lại `best_weights` vào `model` (vì khi dừng, `model` đang giữ
 trọng số của epoch cuối). Cell cuối cùng lưu `state_dict` của model tốt nhất ra
 `src/model1/checkpoints/m1_0x.pt` (thư mục đã nằm trong `.gitignore`). Sau khi chạy notebook, đặt
