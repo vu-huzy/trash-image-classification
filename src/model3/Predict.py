@@ -1,4 +1,3 @@
-from pathlib import Path
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -10,8 +9,7 @@ from sklearn.metrics import accuracy_score, classification_report
 #          | 3c_lora_resnet50 | 3d_full_finetune_resnet50
 MODEL_NAME = '3d_full_finetune_resnet50'
 
-HERE = Path(__file__).resolve().parent
-DATA_DIR = HERE.parents[1] / 'data' / 'VN_trash_classification_preprocessing'
+DATA_DIR = '../../data/VN_trash_classification_preprocessing'
 
 #Đọc dữ liệu từ thư mục test
 transform = transforms.Compose([
@@ -19,7 +17,7 @@ transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
 ])
-test_dataset = ImageFolder(DATA_DIR / 'test', transform=transform)
+test_dataset = ImageFolder(DATA_DIR + '/test', transform=transform)
 test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 class_names = test_dataset.classes
 
@@ -87,7 +85,7 @@ model = TransferModel(backbone, head)
 
 #Load checkpoint: checkpoints/<MODEL_NAME>.pt (do notebook lưu ở dòng cuối)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model.load_state_dict(torch.load(HERE / 'checkpoints' / f'{MODEL_NAME}.pt', map_location=device))
+model.load_state_dict(torch.load('checkpoints/' + MODEL_NAME + '.pt', map_location=device))
 model = model.to(device)
 model.eval()
 

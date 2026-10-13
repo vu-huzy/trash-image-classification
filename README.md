@@ -7,7 +7,6 @@ trên cùng một tập dữ liệu và cùng một quy trình đánh giá:
 2. **Model 2**: các kiến trúc CNN / VGG / ResNet tự viết (dạng tuần tự và dạng nhánh song song), huấn luyện từ đầu.
 3. **Model 3**: transfer learning từ trọng số ImageNet: đóng băng backbone, LoRA tự viết, fine-tune toàn bộ.
 
-Mô hình tốt nhất là **ResNet50 + LoRA (3C) với 96.53% accuracy và macro F1 0.9643** trên tập test (xem mục 7).
 
 ## 1. Dữ liệu
 
@@ -114,8 +113,9 @@ python -m ipykernel install --user --name trash-classification --display-name "t
 python src/preprocessing.py --overwrite
 ```
 
-**Bước 2: huấn luyện**: mở từng notebook trong Jupyter (thư mục làm việc là thư mục chứa notebook, vì đường dẫn trong
-notebook là đường dẫn tương đối) và chạy từ trên xuống dưới, hoặc chạy bằng dòng lệnh:
+**Bước 2: huấn luyện**: mở từng notebook trong Jupyter và chạy từ trên xuống dưới (Jupyter đặt thư mục làm việc là
+thư mục chứa notebook; đường dẫn trong notebook được ghi thẳng, tính từ thư mục đó, xem bảng bên dưới), hoặc chạy
+bằng dòng lệnh:
 
 ```powershell
 jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=-1 `
@@ -125,16 +125,28 @@ jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeou
 Thời gian tham khảo trên RTX 5070: Model 1 từ 2 đến 8 phút, Model 2 từ 16 đến 59 phút, Model 3 từ 3 đến 11 phút
 mỗi notebook.
 
-**Bước 3: kiểm tra checkpoint trên tập test**: mở `Predict.py` của model tương ứng, đặt `MODEL_NAME`, rồi chạy:
+**Bước 3: kiểm tra checkpoint trên tập test**: vào thư mục của model, mở `Predict.py`, đặt `MODEL_NAME`, rồi chạy:
 
 ```powershell
-python src/model1/Predict.py   # m1_01 | m1_02 | m1_03 | m1_04
-python src/model2/Predict.py   # cnn_sequential | cnn_parallel | vgg_sequential | vgg_parallel | resnet
-python src/model3/Predict.py   # 3a_frozen_vgg16 | 3b_frozen_resnet50 | 3b_frozen_efficientnet_b0 | 3c_lora_resnet50 | 3d_full_finetune_resnet50
+cd src/model1; python Predict.py   # m1_01 | m1_02 | m1_03 | m1_04
+cd src/model2; python Predict.py   # cnn_sequential | cnn_parallel | vgg_sequential | vgg_parallel | resnet
+cd src/model3; python Predict.py   # 3a_frozen_vgg16 | 3b_frozen_resnet50 | 3b_frozen_efficientnet_b0 | 3c_lora_resnet50 | 3d_full_finetune_resnet50
 ```
+
+(Lệnh `cd src/...` tính từ thư mục gốc dự án; chạy xong quay lại thư mục gốc trước khi chạy model kế tiếp.)
 
 `Predict.py` chỉ nạp checkpoint và chạy test, in `Test Accuracy` cùng bảng `classification_report` (precision, recall,
 F1, support từng lớp, kèm macro avg và weighted avg).
+
+**Đường dẫn**: mọi đường dẫn được ghi thẳng, tính từ thư mục làm việc của file đang chạy:
+
+| File chạy từ thư mục | `DATA_DIR` | `CHECKPOINT_DIR` (nơi lưu / đọc `.pt`) |
+| --- | --- | --- |
+| `src/model1` (4 notebook, `Predict.py`) | `../../data/VN_trash_classification_preprocessing` | `checkpoints` |
+| `src/model2/notebook` (5 notebook) | `../../../data/VN_trash_classification_preprocessing` | `../checkpoints` |
+| `src/model2` (`Predict.py`) | `../../data/VN_trash_classification_preprocessing` | `checkpoints` |
+| `src/model3/notebook` (5 notebook) | `../../../data/VN_trash_classification_preprocessing` | `../checkpoints` (trọng số ImageNet: `../pretrained/hub`) |
+| `src/model3` (`Predict.py`) | `../../data/VN_trash_classification_preprocessing` | `checkpoints` |
 
 ## 5. Tiền xử lý dữ liệu
 
@@ -258,21 +270,3 @@ Chỉ số test: accuracy, macro precision / recall / F1, weighted F1 và bảng
   (3/5) và `Other` ở Model 3 (4/5; riêng 3C là `Foam_box`). Lớp có F1 cao nhất thường là `Milk_box` hoặc `Carton`
   (xem hai hàng cuối của bảng F1).
 
-### 7.5 Lưu ý khi đọc kết quả
-
-- Mỗi notebook chỉ chạy một lần và hầu hết không đặt seed. `cnn_parallel` được chạy hai lần, cho 68.17% và 64.58%
-  (lệch 3.6 điểm), nên chênh lệch vài điểm giữa các model không chắc là thật.
-- Với Model 1 và 2, epoch tốt nhất nằm sát giới hạn epoch (44–49 / 50 và 25–30 / 30) nên early stopping gần như
-  không kích hoạt: các model này vẫn đang cải thiện khi hết epoch, chưa được huấn luyện đủ.
-- Model 3 chạy ngày 2026-10-11 (PyTorch 2.14 + CUDA 13); Model 1 và 2 chạy ngày 2026-10-13 bằng kernel `python3` trỏ
-  vào môi trường PyTorch 2.11 + CUDA 12.8. Các điều kiện khác nhau về cấu hình huấn luyện (xem 6.3), nên so sánh giữa
-  các nhóm chỉ mang tính tham khảo.
-
-## 8. Hạn chế và hướng phát triển
-
-- Chưa có script tải dữ liệu gốc (`kagglehub` có trong `requirements.txt` nhưng chưa được dùng).
-- Ảnh train đã được augment cố định một lần khi tiền xử lý, nên mỗi epoch thấy lại cùng các biến thể đó (cộng thêm
-  augmentation nhẹ khi huấn luyện).
-- Cần thêm epoch (hoặc cách huấn luyện khác) cho Model 1 và 2, và đặt seed cho mọi notebook, chạy lặp nhiều lần để
-  có khoảng tin cậy.
-- Chưa có kiểm thử tự động cho `src/preprocessing.py`.

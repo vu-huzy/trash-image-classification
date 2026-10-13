@@ -1,4 +1,3 @@
-from pathlib import Path
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -9,8 +8,7 @@ from sklearn.metrics import accuracy_score, classification_report
 #Chọn model: m1_01 (MLP) | m1_02 (CNN 2 block) | m1_03 (CNN 3 block) | m1_04 (CNN 3 block + GAP)
 MODEL_NAME = 'm1_03'
 
-HERE = Path(__file__).resolve().parent
-DATA_DIR = HERE.parents[1] / 'data' / 'VN_trash_classification_preprocessing'
+DATA_DIR = '../../data/VN_trash_classification_preprocessing'
 
 #Đọc dữ liệu từ thư mục test (m1_01 dùng ảnh 128x128, các model còn lại dùng 224x224)
 image_size = 128 if MODEL_NAME == 'm1_01' else 224
@@ -19,7 +17,7 @@ transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
 ])
-test_dataset = ImageFolder(DATA_DIR / 'test', transform=transform)
+test_dataset = ImageFolder(DATA_DIR + '/test', transform=transform)
 test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)
 class_names = test_dataset.classes
 number_of_classes = len(class_names)
@@ -83,7 +81,7 @@ else:
 #Load checkpoint: checkpoints/<MODEL_NAME>.pt (do notebook lưu ở dòng cuối)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = Net(layers)
-model.load_state_dict(torch.load(HERE / 'checkpoints' / f'{MODEL_NAME}.pt', map_location=device))
+model.load_state_dict(torch.load('checkpoints/' + MODEL_NAME + '.pt', map_location=device))
 model = model.to(device)
 model.eval()
 
