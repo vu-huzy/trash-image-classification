@@ -1,5 +1,3 @@
-"""Create a physically preprocessed copy of the trash image dataset."""
-
 from __future__ import annotations
 
 import argparse
@@ -25,33 +23,24 @@ IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 
 
 def _force_remove_readonly(function, path, excinfo):
-    """shutil.rmtree onexc hook: clear the read-only bit and retry once."""
     os.chmod(path, stat.S_IWRITE)
     function(path)
 
 
 def remove_directory_with_retry(path: Path, attempts: int = 5, delay_seconds: float = 1.0) -> None:
-    """Delete a directory tree, retrying on Windows file-lock races.
-
-    A fresh shutil.rmtree() right after writing thousands of small JPEGs can
-    intermittently fail with WinError 145 ("directory not empty") because
-    Windows Defender or the search indexer still holds a handle on a file
-    that was just closed. Retrying after a short delay resolves it.
-    """
-    for attempt in range(1, attempts + 1):
+    for attempt in range(attempts):
         try:
             shutil.rmtree(path, onexc=_force_remove_readonly)
             return
         except FileNotFoundError:
             return
         except OSError:
-            if attempt == attempts:
+            if attempt == attempts - 1:
                 raise
             time.sleep(delay_seconds)
 
 
 def collect_images(split_dir: Path, split_name: str) -> tuple[pd.DataFrame, list[dict[str, str]]]:
-    """Collect readable images and report files that cannot be opened."""
     records: list[dict[str, str]] = []
     bad_files: list[dict[str, str]] = []
 
@@ -78,7 +67,6 @@ def collect_images(split_dir: Path, split_name: str) -> tuple[pd.DataFrame, list
 
 
 def make_transforms() -> tuple[transforms.Compose, transforms.Compose]:
-    """Return the notebook's train augmentation and deterministic eval transform."""
     train_transform = transforms.Compose(
         [
             transforms.RandomResizedCrop(IMAGE_SIZE, scale=(0.8, 1.0)),
@@ -87,9 +75,7 @@ def make_transforms() -> tuple[transforms.Compose, transforms.Compose]:
             transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
         ]
     )
-    eval_transform = transforms.Compose(
-        [transforms.Resize((IMAGE_SIZE, IMAGE_SIZE))]
-    )
+    eval_transform = transforms.Resize((IMAGE_SIZE, IMAGE_SIZE))
     return train_transform, eval_transform
 
 
@@ -99,7 +85,6 @@ def save_split(
     output_dir: Path,
     transform: transforms.Compose,
 ) -> pd.DataFrame:
-    """Transform and save one split while preserving its class folders."""
     split_output_dir = output_dir / split_name
     records: list[dict[str, str]] = []
 
@@ -127,7 +112,6 @@ def save_split(
 
 
 def build_dataset(project_dir: Path, overwrite: bool = False) -> Path:
-    """Build the preprocessed dataset and return its output path."""
     source_dir = project_dir / "data" / "VN_trash_classification"
     output_dir = project_dir / "data" / "VN_trash_classification_preprocessing"
     train_dir = source_dir / "Train"
