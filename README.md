@@ -176,7 +176,7 @@ Vẫn khác nhau (chưa gom, cần quyết định trước khi so sánh model v
 | --- | --- | --- | --- |
 | Patience / số epoch tối đa | 15 / 50 | 7 / 30 | 7 / 30 |
 | Optimizer + scheduler | Adam 1e-3, không scheduler | AdamW 1e-4, wd 5e-4, cosine | AdamW, head 1e-3, wd 1e-4 (3D: wd 0.01), cosine |
-| Batch size | 64 | 32 (`resnet`: 16) | 64 (3A/3B), 32 (3C/3D) |
+| Batch size | 64 | 32 (`resnet`: 24) | 64 (3A/3B), 32 (3C/3D) |
 | Class weight / label smoothing | không / không | có / chỉ `resnet` (0.05) | không / không |
 | Seed | không | chỉ `cnn_sequential` | `torch.manual_seed(42)` |
 | Khác | `m1_01` dùng ảnh 128, còn lại 224 | tên biến viết tắt (`train_ds`, `loss_fn`, `LR`) ở 4/5 notebook | 3D có grad clip 1.0; `drop_last=True`; metric viết inline, không dùng `metrics.py` |
@@ -208,7 +208,7 @@ Chạy nối tiếp 14 notebook bằng `nbconvert --execute --inplace` (GPU RTX 
   phải tăng số epoch hoặc đổi cách train.
 - `resnet` (Model 2) **không có kết quả mới**: chạy 140 phút vẫn chưa xong rồi bị dừng. Epoch đầu mất ~16 phút
   (~17 phút/epoch, lần trước ~3 phút/epoch); VRAM 11.9/12.2 GB, GPU báo 100% nhưng chỉ ~52 W, nghi thiếu VRAM.
-  Notebook `resnet.ipynb` không bị ghi đè kết quả; đã hạ `BATCH_SIZE` từ 32 xuống 16 để tránh tràn VRAM, **chưa chạy lại**.
+  Notebook `resnet.ipynb` không bị ghi đè kết quả; đã hạ `BATCH_SIZE` từ 32 xuống 24 để tránh tràn VRAM, **chưa chạy lại**.
   `src/model2/checkpoints/resnet.pt` hiện là file cũ (chạy 2026-10-11, batch 32, chưa có early stopping), được chép lại từ backup.
 - Model 3 **không chạy lại**: output trong 5 notebook, `src/model3/results/` và checkpoint là của lần chạy ngày
   2026-10-11 với patience 6 (3D: 5), trong khi code notebook hiện ghi `PATIENCE = 7`.
