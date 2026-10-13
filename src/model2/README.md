@@ -64,29 +64,34 @@ overwrites its file with that run's best-validation weights; the files that were
 there before (and every other older run) are in `checkpoints/archive/`, nothing
 was deleted.
 
-The results below predate the preprocessing and early-stopping update.
-All five `<model>.pt` files below come from the notebook run of 2026-10-11 (RTX 5070,
-8 DataLoader workers). Per-class precision / recall / F1 / support for each model is
-in [../../RESULTS.md](../../RESULTS.md).
+The first four rows were rerun on 2026-10-13 with the current notebooks (ImageNet normalize,
+HFlip + ColorJitter, early stopping with `PATIENCE = 7`; RTX 5070, 8 DataLoader workers). The
+`resnet` row is the older 2026-10-11 run (batch 32, no early stopping) because its rerun was
+stopped; the notebook is now set to batch 24 and has not been rerun. The 2026-10-11 files that
+the rerun overwrote were kept in a backup folder outside the repo (`backup_checkpoints_20261013`).
+Per-class precision / recall / F1 / support for each model is in
+[../../RESULTS.md](../../RESULTS.md).
 
 | File | Val acc (best epoch) | Test acc | Macro F1 | Epoch | Time | Old `train.py` pick (test acc) |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| `cnn_sequential.pt` | 68.25% | 64.12% | 0.6320 | 28 / 30 | 16.0 min | 70.49% |
-| `cnn_parallel.pt` | 69.73% | 64.12% | 0.6339 | 27 / 30 | 18.2 min | 69.21% |
-| `vgg_sequential.pt` | 80.71% | 73.38% | 0.7217 | 29 / 30 | 29.3 min | 75.81% |
-| `vgg_parallel.pt` | 82.08% | **76.04%** | **0.7487** | 28 / 30 | 45.3 min | 76.97% |
-| `resnet.pt` | 75.07% | 69.33% | 0.6813 | 30 / 30 | 90.7 min | 70.14% |
+| `cnn_sequential.pt` | 69.38% | 65.97% | 0.6526 | 30 / 30 | 16.1 min | 70.49% |
+| `cnn_parallel.pt` | 70.74% | 68.17% | 0.6754 | 30 / 30 | 17.8 min | 69.21% |
+| `vgg_sequential.pt` | 79.70% | 72.34% | 0.7109 | 25 / 30 | 29.1 min | 75.81% |
+| `vgg_parallel.pt` | 82.55% | **76.04%** | **0.7477** | 28 / 30 | 37.4 min | 76.97% |
+| `resnet.pt` (old run) | 75.07% | 69.33% | 0.6813 | 30 / 30 | 90.7 min | 70.14% |
 
-- The best epoch of every model is 27–30 of 30, so none of them stopped improving
-  before the 30-epoch limit; whether more epochs would help was not tested.
-- The notebook runs are 0.8–6.4 points of test accuracy below the old `train.py`
+- The best epoch of the four rerun models is 30, 30, 25 and 28 of 30 and early stopping
+  never triggered, so none of them stopped improving before the 30-epoch limit; whether
+  more epochs would help was not tested.
+- The notebook runs are 0.8–4.5 points of test accuracy below the old `train.py`
   picks. The two pipelines differ (the old script used CUDA bfloat16 autocast and
   its own run selection), so the gap is not attributed to a single cause.
 - `vgg_parallel` has the best score and a file less than half the size of
   `vgg_sequential` (20.6 MB vs 56.5 MB), but it is a single run per model, so the
   difference between the two VGG variants is not established.
-- The class with the lowest F1 is `Foam_box` for `vgg_sequential` and `vgg_parallel`
-  (recall only 0.47 and 0.38) and `PET` for the other three models.
+- The class with the lowest F1 is `Foam_box` for `cnn_sequential`, `cnn_parallel` and
+  `vgg_parallel` (recall 0.54, 0.51 and 0.46), `Other` for `vgg_sequential`, and `PET` for
+  the old `resnet` run.
 
 ## Check a model
 
@@ -96,7 +101,7 @@ Set `MODEL_NAME` at the top of `Predict.py`, then:
 .venv/Scripts/python.exe src/model2/Predict.py
 ```
 
-It prints the true and predicted class of the first 10 test images, then accuracy,
-macro precision / recall / F1, weighted F1 and the per-class `classification_report`
-on the whole test split. It reads both checkpoint formats: a plain `state_dict`
-(notebooks) and `{'model': state_dict, ...}` (files in `checkpoints/archive/`).
+It loads `checkpoints/<MODEL_NAME>.pt` (a plain `state_dict` saved by the notebook), runs the
+whole test split and prints the accuracy and the per-class `classification_report`
+(precision / recall / F1, macro avg, weighted avg). The files in `checkpoints/archive/` use an
+older `{'model': state_dict, ...}` format and are not loaded by `Predict.py`.

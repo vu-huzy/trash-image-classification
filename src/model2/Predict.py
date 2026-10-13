@@ -4,7 +4,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
-from sklearn.metrics import classification_report, precision_recall_fscore_support
+from sklearn.metrics import accuracy_score, classification_report
 
 #Chọn model: cnn_sequential | cnn_parallel | vgg_sequential | vgg_parallel | resnet
 MODEL_NAME = 'cnn_sequential'
@@ -276,14 +276,13 @@ MODELS = {
 }
 model = MODELS[MODEL_NAME](len(class_names))
 
-#Load model: checkpoints/<MODEL_NAME>.pt (do notebook lưu ở dòng cuối)
-#Các file cũ trong checkpoints/archive/ là dict {'model': state_dict, ...} nên lấy theo khóa 'model'
+#Load checkpoint: checkpoints/<MODEL_NAME>.pt (do notebook lưu ở dòng cuối)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-state = torch.load(HERE / 'checkpoints' / f'{MODEL_NAME}.pt', map_location='cpu')
-model.load_state_dict(state.get('model', state))
-model = model.to(device).eval()
+model.load_state_dict(torch.load(HERE / 'checkpoints' / f'{MODEL_NAME}.pt', map_location=device))
+model = model.to(device)
+model.eval()
 
-#Dự báo nhãn của tập test
+#Chạy test
 true_labels = []
 pred_labels = []
 with torch.no_grad():
@@ -292,25 +291,9 @@ with torch.no_grad():
         true_labels += labels.tolist()
         pred_labels += outputs.argmax(dim=1).cpu().tolist()
 
-#In 10 ảnh đầu tiên: nhãn thật và nhãn dự đoán
+#Kết quả trên tập test (classification_report đã có precision/recall/F1 từng lớp, macro avg và weighted avg)
+accuracy = accuracy_score(true_labels, pred_labels)
 print('Model:', MODEL_NAME)
-for i in range(10):
-    image_name = Path(test_dataset.samples[i][0]).name
-    print(image_name, '| thật:', class_names[true_labels[i]], '| dự đoán:', class_names[pred_labels[i]])
-
-#Kiểm tra kết quả trên toàn bộ tập test
-accuracy = sum(t == p for t, p in zip(true_labels, pred_labels)) / len(true_labels)
-macro_precision, macro_recall, macro_f1, _ = precision_recall_fscore_support(
-    true_labels, pred_labels, average='macro', zero_division=0
-)
-_, _, weighted_f1, _ = precision_recall_fscore_support(
-    true_labels, pred_labels, average='weighted', zero_division=0
-)
-print()
 print('Test Accuracy:', f'{accuracy:.2%}')
-print('Macro Precision:', f'{macro_precision:.4f}')
-print('Macro Recall:', f'{macro_recall:.4f}')
-print('Macro F1:', f'{macro_f1:.4f}')
-print('Weighted F1:', f'{weighted_f1:.4f}')
 print()
 print(classification_report(true_labels, pred_labels, target_names=class_names, digits=4, zero_division=0))

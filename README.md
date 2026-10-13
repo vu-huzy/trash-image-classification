@@ -93,27 +93,28 @@ Notebook dùng `ImageFolder` trên `data/VN_trash_classification_preprocessing/{
 val/test dùng Resize + ToTensor + Normalize ImageNet. `metrics.py` là phần metric dùng chung (`calculate_metrics`).
 Các script `.py` cũ của Model 1, `configs/`, `src/common/`, `docs/` và `reports/` đã bị xóa.
 
-Bảng dưới là kết quả trước khi thêm Normalize/augmentation và đổi checkpoint sang max val accuracy
-(GPU RTX 5070, DataLoader 8 worker); bảng precision/recall/F1/support từng lớp
-nằm ở [RESULTS.md](RESULTS.md):
+Kết quả lần chạy lại ngày 2026-10-13 với code `cdee048` (GPU RTX 5070, DataLoader 8 worker); bảng
+precision/recall/F1/support từng lớp nằm ở [RESULTS.md](RESULTS.md):
 
 | Model | Test accuracy | Macro F1 | Epoch tốt nhất | Thời gian |
 | --- | ---: | ---: | ---: | ---: |
-| M1-01 — MLP | 15.62% | 0.1016 | 45 / 50 | 3.5 phút |
-| M1-02 — CNN 2 block | 45.95% | 0.4531 | 34 (dừng ở 49) | 7.3 phút |
-| M1-03 — CNN 3 block | **48.73%** | **0.4840** | 16 (dừng ở 31) | 5.8 phút |
-| M1-04 — CNN 3 block + GAP | 45.95% | 0.4167 | 50 / 50 | 8.5 phút |
+| M1-01 — MLP | 19.79% | 0.1263 | 7 (dừng ở 22) | 2.2 phút |
+| M1-02 — CNN 2 block | 52.31% | 0.5080 | 49 / 50 | 6.9 phút |
+| M1-03 — CNN 3 block | **63.08%** | **0.6253** | 45 / 50 | 7.9 phút |
+| M1-04 — CNN 3 block + GAP | 48.84% | 0.4771 | 44 / 50 | 8.1 phút |
 
-Lưu ý khi đọc bảng: các số cũ (18.06% / 56.37% / 60.30% / 52.66%) đến từ script `.py` cũ có augmentation
-(HFlip + ColorJitter) và chuẩn hóa ImageNet, nên không so sánh trực tiếp được với bảng trên; chưa có thí nghiệm
-riêng để xác định nguyên nhân chênh lệch. M1-04 đạt validation loss thấp nhất đúng ở epoch cuối (50/50), tức là
-vẫn đang cải thiện khi chạm giới hạn 50 epoch. M1-01 gần như không học được (accuracy train 18.76% ở epoch tốt nhất).
+Lưu ý khi đọc bảng: các số cũ (18.06% / 56.37% / 60.30% / 52.66%) đến từ script `.py` cũ cùng có augmentation
+(HFlip + ColorJitter) và chuẩn hóa ImageNet. M1-02/03/04 chạy đủ 50 epoch với epoch tốt nhất ở 49, 45 và 44, tức là
+vẫn đang cải thiện khi chạm giới hạn epoch nên early stopping không kích hoạt. M1-01 vẫn học rất kém (accuracy train
+20.86%, validation 23.50% ở epoch tốt nhất). Bảng trước đó (chỉ Resize + ToTensor, chọn epoch theo val loss) cho
+15.62% / 45.95% / 48.73% / 45.95%; ba thay đổi (augmentation, chuẩn hóa, tiêu chí chọn epoch) diễn ra cùng lúc nên
+chưa tách được từng yếu tố.
 
 Notebook `src/model1/m1_0x.ipynb`: early stopping giữ `best_weights` (val accuracy cao nhất) trong RAM;
 ngay sau vòng lặp train, notebook nạp lại `best_weights` vào `model` (vì khi dừng, `model` đang giữ
 trọng số của epoch cuối). Cell cuối cùng lưu `state_dict` của model tốt nhất ra
 `src/model1/checkpoints/m1_0x.pt` (thư mục đã nằm trong `.gitignore`). Sau khi chạy notebook, đặt
-`MODEL_NAME` trong `src/model1/Predict.py` rồi chạy file đó để xem dự đoán và accuracy/F1 trên tập test.
+`MODEL_NAME` trong `src/model1/Predict.py` rồi chạy file đó: file chỉ nạp checkpoint, chạy tập test và in accuracy cùng bảng `classification_report` từng lớp.
 
 ### Model 2 — CNN / VGG / ResNet tự viết
 
@@ -126,19 +127,21 @@ file chuẩn `src/model2/checkpoints/<model>.pt`, các lần chạy cũ nằm tr
 `src/model2/Predict.py`. Chi tiết (bảng checkpoint, lưu ý về `resnet`): [src/model2/README.md](src/model2/README.md);
 bảng từng lớp: [RESULTS.md](RESULTS.md).
 
-Kết quả lần chạy lại bằng notebook (30 epoch, GPU RTX 5070):
+Kết quả (4 notebook chạy lại ngày 2026-10-13 với code `cdee048`, patience 7; `resnet` là kết quả cũ ngày
+2026-10-11 vì lần chạy lại bị dừng; GPU RTX 5070):
 
 | Model | Test accuracy | Macro F1 | Epoch tốt nhất | Thời gian |
 | --- | ---: | ---: | ---: | ---: |
-| cnn_sequential | 64.12% | 0.6320 | 28 / 30 | 16.0 phút |
-| cnn_parallel | 64.12% | 0.6339 | 27 / 30 | 18.2 phút |
-| vgg_sequential | 73.38% | 0.7217 | 29 / 30 | 29.3 phút |
-| vgg_parallel | **76.04%** | **0.7487** | 28 / 30 | 45.3 phút |
-| resnet | 69.33% | 0.6813 | 30 / 30 | 90.7 phút |
+| cnn_sequential | 65.97% | 0.6526 | 30 / 30 | 16.1 phút |
+| cnn_parallel | 68.17% | 0.6754 | 30 / 30 | 17.8 phút |
+| vgg_sequential | 72.34% | 0.7109 | 25 / 30 | 29.1 phút |
+| vgg_parallel | **76.04%** | **0.7477** | 28 / 30 | 37.4 phút |
+| resnet (kết quả cũ) | 69.33% | 0.6813 | 30 / 30 | 90.7 phút |
 
-Epoch tốt nhất của cả 5 model nằm ở 27–30 trên 30, tức là chưa model nào ngừng cải thiện trước giới hạn epoch.
-So với checkpoint cũ chọn từ các lần chạy `train.py`, bản notebook thấp hơn 0.8–6.4 điểm accuracy; hai pipeline
-khác nhau nên chưa quy được cho một nguyên nhân. Mỗi model chỉ chạy một lần.
+Epoch tốt nhất của 4 model chạy lại là 30, 30, 25 và 28 trên 30, early stopping không kích hoạt ở model nào, tức là
+chưa model nào ngừng cải thiện trước giới hạn epoch. So với checkpoint cũ chọn từ các lần chạy `train.py`, 4 bản
+notebook mới thấp hơn 0.9–4.5 điểm accuracy; hai pipeline khác nhau nên chưa quy được cho một nguyên nhân.
+Mỗi model chỉ chạy một lần.
 
 ### Model 3 — transfer learning với pretrained backbone
 
@@ -213,7 +216,8 @@ Chạy nối tiếp 14 notebook bằng `nbconvert --execute --inplace` (GPU RTX 
 - Model 3 **không chạy lại**: output trong 5 notebook, `src/model3/results/` và checkpoint là của lần chạy ngày
   2026-10-11 với patience 6 (3D: 5); patience trong 5 notebook đã được đặt lại đúng 6 (3D: 5) để khớp với kết quả đó.
 - Kernel `python3` trong lần chạy này là `anaconda3\envs\gpu` (torch 2.11.0+cu128), xem mục môi trường ở trên.
-- `RESULTS.md` và các bảng kết quả Model 1/2 cũ ở phía trên **chưa** được cập nhật theo bảng này.
+- `RESULTS.md` và các bảng kết quả Model 1/2 ở phía trên (kèm `src/model2/README.md`) đã được cập nhật theo bảng này;
+  riêng `resnet` và Model 3 vẫn giữ số của lần chạy ngày 2026-10-11.
 
 ## Việc còn thiếu / gợi ý tiếp theo
 

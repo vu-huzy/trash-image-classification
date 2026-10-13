@@ -1,6 +1,11 @@
 # Kết quả thực nghiệm
 
-Cập nhật lần cuối: 2026-10-11 14:57. Tất cả số liệu lấy từ output của các notebook sau lần chạy lại toàn bộ ngày 2026-10-11 (GPU NVIDIA RTX 5070, PyTorch 2.14 + CUDA 13, DataLoader 8 worker). Mỗi notebook chỉ chạy một lần. Chỉ model 3 và `cnn_sequential` đặt seed; các notebook còn lại không đặt seed, nên chạy lại có thể lệch vài điểm phần trăm.
+Cập nhật lần cuối: 2026-10-13. Số liệu lấy từ output của các notebook, gồm hai đợt chạy:
+
+- **2026-10-13** (8 notebook: `m1_01`–`m1_04`, `cnn_sequential`, `cnn_parallel`, `vgg_sequential`, `vgg_parallel`): chạy lại với code ở commit `cdee048` (thêm HFlip + ColorJitter + chuẩn hóa ImageNet cho Model 1, bỏ Rotation ở Model 2, chọn epoch theo validation accuracy, thêm early stopping; patience Model 1 là 15, Model 2 là 7). Kernel `python3` trỏ vào env `anaconda3\envs\gpu` (PyTorch 2.11 + CUDA 12.8), GPU NVIDIA RTX 5070, DataLoader 8 worker.
+- **2026-10-11** (6 notebook: `resnet` của Model 2 và 5 notebook Model 3): giữ nguyên kết quả cũ (PyTorch 2.14 + CUDA 13). `resnet` chưa có kết quả mới vì lần chạy lại bị dừng (quá chậm do thiếu VRAM), notebook hiện đã đặt batch 24 và patience 7 nhưng chưa chạy lại.
+
+Mỗi notebook chỉ chạy một lần. Chỉ model 3 và `cnn_sequential` đặt seed; các notebook còn lại không đặt seed, nên chạy lại có thể lệch vài điểm phần trăm. Vì hai đợt chạy dùng cấu hình khác nhau, `resnet` và Model 3 chưa so sánh công bằng được với 8 notebook còn lại.
 
 ## Dữ liệu và cách đánh giá
 
@@ -13,14 +18,14 @@ Cập nhật lần cuối: 2026-10-11 14:57. Tất cả số liệu lấy từ o
 
 | Model | Test acc | Macro P | Macro R | Macro F1 | Weighted F1 | Epoch chạy | Best epoch | Thời gian |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Model 1 · M1-01 — MLP | 15.62% | 0.1451 | 0.1508 | 0.1016 | 0.0939 | 50 | 45 | 3.5 phút |
-| Model 1 · M1-02 — CNN 2 block | 45.95% | 0.4757 | 0.4611 | 0.4531 | 0.4656 | 49 | 34 | 7.3 phút |
-| Model 1 · M1-03 — CNN 3 block | 48.73% | 0.5196 | 0.4879 | 0.4840 | 0.4920 | 31 | 16 | 5.8 phút |
-| Model 1 · M1-04 — CNN 3 block + GAP | 45.95% | 0.4792 | 0.4610 | 0.4167 | 0.4189 | 50 | 50 | 8.5 phút |
-| Model 2 · CNN sequential | 64.12% | 0.6358 | 0.6330 | 0.6320 | 0.6411 | 30 | 28 | 16.0 phút |
-| Model 2 · CNN parallel | 64.12% | 0.6348 | 0.6397 | 0.6339 | 0.6428 | 30 | 27 | 18.2 phút |
-| Model 2 · VGG sequential | 73.38% | 0.7276 | 0.7271 | 0.7217 | 0.7330 | 30 | 29 | 29.3 phút |
-| Model 2 · VGG parallel | 76.04% | 0.7561 | 0.7601 | 0.7487 | 0.7530 | 30 | 28 | 45.3 phút |
+| Model 1 · M1-01 — MLP | 19.79% | 0.1961 | 0.1805 | 0.1263 | 0.1376 | 22 | 7 | 2.2 phút |
+| Model 1 · M1-02 — CNN 2 block | 52.31% | 0.5262 | 0.5237 | 0.5080 | 0.5144 | 50 | 49 | 6.9 phút |
+| Model 1 · M1-03 — CNN 3 block | 63.08% | 0.6350 | 0.6272 | 0.6253 | 0.6346 | 50 | 45 | 7.9 phút |
+| Model 1 · M1-04 — CNN 3 block + GAP | 48.84% | 0.4926 | 0.4983 | 0.4771 | 0.4827 | 50 | 44 | 8.1 phút |
+| Model 2 · CNN sequential | 65.97% | 0.6607 | 0.6610 | 0.6526 | 0.6602 | 30 | 30 | 16.1 phút |
+| Model 2 · CNN parallel | 68.17% | 0.6782 | 0.6801 | 0.6754 | 0.6841 | 30 | 30 | 17.8 phút |
+| Model 2 · VGG sequential | 72.34% | 0.7202 | 0.7175 | 0.7109 | 0.7242 | 30 | 25 | 29.1 phút |
+| Model 2 · VGG parallel | 76.04% | 0.7570 | 0.7569 | 0.7477 | 0.7589 | 30 | 28 | 37.4 phút |
 | Model 2 · ResNet (tự viết, không phải ResNet-18 chuẩn) | 69.33% | 0.6861 | 0.6840 | 0.6813 | 0.6927 | 30 | 30 | 90.7 phút |
 | Model 3 · 3A — VGG16 đóng băng | 82.18% | 0.8192 | 0.8225 | 0.8162 | 0.8229 | 19 | 13 | 7.6 phút |
 | Model 3 · 3B — ResNet50 đóng băng | 93.98% | 0.9376 | 0.9366 | 0.9363 | 0.9397 | 12 | 6 | 3.7 phút |
@@ -32,24 +37,27 @@ Cập nhật lần cuối: 2026-10-11 14:57. Tất cả số liệu lấy từ o
 
 | Lớp | m1_01 | m1_02 | m1_03 | m1_04 | m2_cnn_sequential | m2_cnn_parallel | m2_vgg_sequential | m2_vgg_parallel | m2_resnet | m3_3a_frozen_vgg16 | m3_3b_frozen_resnet50 | m3_3b_frozen_efficientnet_b0 | m3_3c_lora_resnet50 | m3_3d_full_finetune_resnet50 |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Alu | 0.0000 | 0.5427 | 0.5943 | 0.5977 | 0.6965 | 0.6337 | 0.7677 | 0.8077 | 0.7716 | 0.8835 | 0.9648 | 0.9447 | 0.9744 | 0.9548 |
-| Carton | 0.3176 | 0.6778 | 0.6989 | 0.7330 | 0.7941 | 0.7814 | 0.8571 | 0.8436 | 0.8365 | 0.8265 | 0.9469 | 0.9533 | 0.9668 | 0.9327 |
-| Foam_box | 0.0000 | 0.3578 | 0.4211 | 0.1611 | 0.5190 | 0.4938 | 0.5775 | 0.5000 | 0.5342 | 0.8686 | 0.9146 | 0.9012 | 0.9425 | 0.8914 |
-| Milk_box | 0.0000 | 0.5795 | 0.7368 | 0.6829 | 0.7389 | 0.8325 | 0.8812 | 0.8796 | 0.8804 | 0.9128 | 0.9806 | 0.9608 | 0.9901 | 0.9756 |
-| Other | 0.2903 | 0.2775 | 0.3662 | 0.4375 | 0.5283 | 0.5440 | 0.5882 | 0.7544 | 0.5405 | 0.6838 | 0.8824 | 0.8257 | 0.9515 | 0.8448 |
-| PET | 0.0345 | 0.4400 | 0.3128 | 0.4257 | 0.4817 | 0.4577 | 0.6047 | 0.6549 | 0.5182 | 0.7163 | 0.9412 | 0.9246 | 0.9648 | 0.9091 |
-| Paper | 0.0000 | 0.5498 | 0.5700 | 0.5260 | 0.6789 | 0.7129 | 0.7713 | 0.7867 | 0.6786 | 0.7873 | 0.9390 | 0.9519 | 0.9585 | 0.9159 |
-| Paper_cup | 0.1053 | 0.5116 | 0.4103 | 0.1864 | 0.6634 | 0.6634 | 0.8585 | 0.8785 | 0.8325 | 0.9116 | 0.9488 | 0.9573 | 0.9859 | 0.9859 |
-| Plastic_cup | 0.1670 | 0.1410 | 0.2456 | 0.0000 | 0.5868 | 0.5856 | 0.5894 | 0.6327 | 0.5392 | 0.7553 | 0.9083 | 0.9009 | 0.9439 | 0.9000 |
+| Alu | 0.0385 | 0.5419 | 0.7191 | 0.6024 | 0.7264 | 0.7097 | 0.7960 | 0.8254 | 0.7716 | 0.8835 | 0.9648 | 0.9447 | 0.9744 | 0.9548 |
+| Carton | 0.4537 | 0.7204 | 0.7739 | 0.7685 | 0.7767 | 0.8116 | 0.8390 | 0.8879 | 0.8365 | 0.8265 | 0.9469 | 0.9533 | 0.9668 | 0.9327 |
+| Foam_box | 0.0152 | 0.3590 | 0.4780 | 0.3288 | 0.5027 | 0.5000 | 0.5571 | 0.5839 | 0.5342 | 0.8686 | 0.9146 | 0.9012 | 0.9425 | 0.8914 |
+| Milk_box | 0.0708 | 0.7027 | 0.7600 | 0.6699 | 0.8200 | 0.8438 | 0.8687 | 0.8627 | 0.8804 | 0.9128 | 0.9806 | 0.9608 | 0.9901 | 0.9756 |
+| Other | 0.0220 | 0.4462 | 0.5167 | 0.4260 | 0.5760 | 0.5950 | 0.5426 | 0.6202 | 0.5405 | 0.6838 | 0.8824 | 0.8257 | 0.9515 | 0.8448 |
+| PET | 0.0357 | 0.4925 | 0.5772 | 0.3310 | 0.5093 | 0.5532 | 0.6083 | 0.6341 | 0.5182 | 0.7163 | 0.9412 | 0.9246 | 0.9648 | 0.9091 |
+| Paper | 0.0000 | 0.4964 | 0.6857 | 0.5909 | 0.6798 | 0.7075 | 0.7282 | 0.8019 | 0.6786 | 0.7873 | 0.9390 | 0.9519 | 0.9585 | 0.9159 |
+| Paper_cup | 0.1808 | 0.5646 | 0.6602 | 0.5761 | 0.7014 | 0.7407 | 0.8326 | 0.8739 | 0.8325 | 0.9116 | 0.9488 | 0.9573 | 0.9859 | 0.9859 |
+| Plastic_cup | 0.3200 | 0.2483 | 0.4571 | 0.0000 | 0.5812 | 0.6174 | 0.6256 | 0.6389 | 0.5392 | 0.7553 | 0.9083 | 0.9009 | 0.9439 | 0.9000 |
 
 ## Ghi chú khi đọc kết quả
 
 - Số liệu Model 1 cũ trong README (M1-01 18.06%, M1-02 56.37%, M1-03 60.30%, M1-04 52.66%) đến từ các script
-  `.py` ở commit `44c0af8`, nay đã bị xóa. Script `m1_03.py` ở commit đó có augmentation (HFlip + ColorJitter)
-  và chuẩn hóa ImageNet; notebook hiện tại chỉ Resize + ToTensor. Hai bộ số liệu khác cấu hình, không so
-  sánh trực tiếp được, và chưa có thí nghiệm riêng để xác định nguyên nhân chênh lệch.
-- M1-01 (MLP) gần như không học được: ở epoch tốt nhất accuracy train 18.76%, validation 19.94%, test 15.62% (đoán ngẫu nhiên là 11.1%); 4 trong 9 lớp có F1 bằng 0. Các lần chạy khác của cùng notebook cho 5.67% và khoảng 18–20%, nghĩa là luôn ở mức thấp và dao động mạnh giữa các lần chạy.
-- Model 2: cả 5 model có best epoch ở 27–30 trên 30 epoch, nên chưa model nào ngừng cải thiện trước giới hạn epoch (chưa thử tăng epoch). Cả 5 thấp hơn checkpoint cũ chọn từ các lần chạy `train.py` (0.8–6.4 điểm accuracy); hai pipeline khác nhau nên chưa quy được cho một nguyên nhân.
+  `.py` ở commit `44c0af8`, nay đã bị xóa. Từ commit `cdee048` các notebook Model 1 đã có cùng augmentation
+  (HFlip + ColorJitter) và chuẩn hóa ImageNet như script cũ, nên bộ số liệu mới (M1-01 19.79%, M1-02 52.31%,
+  M1-03 63.08%, M1-04 48.84%) gần với số script cũ hơn bản notebook trước đó (15.62% / 45.95% / 48.73% / 45.95%,
+  chỉ Resize + ToTensor). Một lần chạy mỗi cấu hình và ba thay đổi cùng lúc (augmentation, chuẩn hóa, tiêu chí chọn
+  epoch) nên chưa tách được từng yếu tố.
+- M1-01 (MLP) vẫn học rất kém: ở epoch tốt nhất (7) accuracy train 20.86%, validation 23.50%, test 19.79% (đoán ngẫu nhiên là 11.1%); chỉ lớp Paper có F1 bằng 0 nhưng 6 trong 9 lớp có F1 dưới 0.1. Notebook dừng sớm ở epoch 22 do validation accuracy không tăng thêm 15 epoch liên tiếp. Các lần chạy khác của cùng notebook từng cho 5.67% và khoảng 18–20%, nghĩa là luôn ở mức thấp và dao động mạnh giữa các lần chạy.
+- Model 1: M1-02/03/04 chạy đủ 50 epoch với best epoch ở 49, 45 và 44, tức vẫn đang cải thiện khi chạm giới hạn; early stopping (patience 15) không kích hoạt ở ba notebook này.
+- Model 2: 4 notebook chạy lại ngày 2026-10-13 có best epoch ở 30, 30, 25 và 28 trên 30 epoch, early stopping (patience 7) không kích hoạt ở notebook nào, nên chưa model nào ngừng cải thiện trước giới hạn epoch (chưa thử tăng epoch). Số so sánh với checkpoint cũ chọn từ các lần chạy `train.py` chưa được tính lại cho bộ số liệu mới.
 - Model 3: ba biến thể chỉ train head (VGG16, ResNet50, EfficientNet-B0) đều dừng sớm và có chênh lệch lớn giữa train và validation (train accuracy 98.7–99.6% so với val 86.5–93.2% ở epoch tốt nhất). LoRA (3C) cao hơn fine-tune toàn bộ (3D) 3.7 điểm accuracy, ngược với framework cũ (3D 0.9606 > 3C 0.9549) vốn dùng cấu hình khác bản notebook.
 - Các notebook model 3 lưu toàn bộ `state_dict` (cả backbone đóng băng), nên `3a_frozen_vgg16.pt` nặng khoảng 520 MB.
 - Mọi so sánh giữa các model chỉ dựa trên một lần chạy, một lần chia tập.
@@ -59,216 +67,217 @@ Cập nhật lần cuối: 2026-10-11 14:57. Tất cả số liệu lấy từ o
 ### M1-01 — MLP
 
 - Notebook: `src/model1/m1_01.ipynb`
-- Cấu hình: ảnh 128×128; Flatten → Linear 512 → Linear 128 → 9 (Dropout 0.2). Resize rồi `ToTensor` (không chuẩn hóa, không augmentation), batch 64, Adam lr=1e-3, `CrossEntropyLoss`, tối đa 50 epoch, early stopping theo validation loss (patience 15), nạp lại trọng số có val loss thấp nhất trước khi test
-- Huấn luyện: chạy 50/50 epoch, mất 3.5 phút
-- Epoch tốt nhất (45): Train Loss 2.1073, Train Acc 18.76%, Val Loss 2.1118, Val Acc 19.94%
-- Epoch cuối (50): Train Loss 2.1120, Train Acc 18.20%, Val Loss 2.1493, Val Acc 19.05%
-- Test (864 ảnh): accuracy 15.62%, macro P 0.1451, macro R 0.1508, macro F1 0.1016, weighted F1 0.0939
+- Cấu hình: ảnh 128×128; Flatten → Linear 512 → Linear 128 → 9 (Dropout 0.2). train: Resize + HFlip + ColorJitter 0.1 + chuẩn hóa ImageNet, val/test: Resize + chuẩn hóa ImageNet, batch 64, Adam lr=1e-3, `CrossEntropyLoss`, tối đa 50 epoch, early stopping theo validation accuracy (patience 15), nạp lại trọng số có val accuracy cao nhất trước khi test
+- Huấn luyện: chạy 22/50 epoch (early stopping ở epoch 22), mất 2.2 phút
+- Epoch tốt nhất (7): Train Loss 2.0702, Train Acc 20.86%, Val Loss 2.0781, Val Acc 23.50%
+- Epoch cuối (22): Train Loss 1.9449, Train Acc 25.70%, Val Loss 2.0605, Val Acc 19.82%
+- Test (864 ảnh): accuracy 19.79%, macro P 0.1961, macro R 0.1805, macro F1 0.1263, weighted F1 0.1376
 - Model đã lưu: `src/model1/checkpoints/m1_01.pt` (96.3 MB)
 
 | Lớp | Precision | Recall | F1 | Support |
 | --- | ---: | ---: | ---: | ---: |
-| Alu | 0.0000 | 0.0000 | 0.0000 | 99 |
-| Carton | 0.2067 | 0.6852 | 0.3176 | 108 |
-| Foam_box | 0.0000 | 0.0000 | 0.0000 | 87 |
-| Milk_box | 0.0000 | 0.0000 | 0.0000 | 101 |
-| Other | 0.7500 | 0.1800 | 0.2903 | 50 |
-| PET | 0.1429 | 0.0196 | 0.0345 | 102 |
+| Alu | 0.4000 | 0.0202 | 0.0385 | 99 |
+| Carton | 0.4537 | 0.4537 | 0.4537 | 108 |
+| Foam_box | 0.0222 | 0.0115 | 0.0152 | 87 |
+| Milk_box | 0.3333 | 0.0396 | 0.0708 | 101 |
+| Other | 0.0244 | 0.0200 | 0.0220 | 50 |
+| PET | 0.2000 | 0.0196 | 0.0357 | 102 |
 | Paper | 0.0000 | 0.0000 | 0.0000 | 106 |
-| Paper_cup | 0.0976 | 0.1143 | 0.1053 | 105 |
-| Plastic_cup | 0.1089 | 0.3585 | 0.1670 | 106 |
-| *macro avg* | 0.1451 | 0.1508 | 0.1016 | 864 |
-| *weighted avg* | 0.1113 | 0.1562 | 0.0939 | 864 |
+| Paper_cup | 0.1285 | 0.3048 | 0.1808 | 105 |
+| Plastic_cup | 0.2030 | 0.7547 | 0.3200 | 106 |
+| *macro avg* | 0.1961 | 0.1805 | 0.1263 | 864 |
+| *weighted avg* | 0.2093 | 0.1979 | 0.1376 | 864 |
 
-Lớp tốt nhất: Carton (F1 0.3176). Lớp kém nhất: Alu (F1 0.0000).
+Lớp tốt nhất: Carton (F1 0.4537). Lớp kém nhất: Paper (F1 0.0000).
 
 ### M1-02 — CNN 2 block
 
 - Notebook: `src/model1/m1_02.ipynb`
-- Cấu hình: ảnh 224×224; 2 × (Conv + BatchNorm + ReLU + MaxPool: 32, 64) → AdaptiveAvgPool 4×4 → Linear 128 → 9 (Dropout 0.2). Resize rồi `ToTensor` (không chuẩn hóa, không augmentation), batch 64, Adam lr=1e-3, `CrossEntropyLoss`, tối đa 50 epoch, early stopping theo validation loss (patience 15), nạp lại trọng số có val loss thấp nhất trước khi test
-- Huấn luyện: chạy 49/50 epoch, dừng sớm (early stopping), mất 7.3 phút
-- Epoch tốt nhất (34): Train Loss 0.9055, Train Acc 69.04%, Val Loss 1.2707, Val Acc 59.35%
-- Epoch cuối (49): Train Loss 0.7656, Train Acc 73.83%, Val Loss 1.5445, Val Acc 55.67%
-- Test (864 ảnh): accuracy 45.95%, macro P 0.4757, macro R 0.4611, macro F1 0.4531, weighted F1 0.4656
+- Cấu hình: ảnh 224×224; 2 × (Conv + BatchNorm + ReLU + MaxPool: 32, 64) → AdaptiveAvgPool 4×4 → Linear 128 → 9 (Dropout 0.2). train: Resize + HFlip + ColorJitter 0.1 + chuẩn hóa ImageNet, val/test: Resize + chuẩn hóa ImageNet, batch 64, Adam lr=1e-3, `CrossEntropyLoss`, tối đa 50 epoch, early stopping theo validation accuracy (patience 15), nạp lại trọng số có val accuracy cao nhất trước khi test
+- Huấn luyện: chạy 50/50 epoch, mất 6.9 phút
+- Epoch tốt nhất (49): Train Loss 0.9841, Train Acc 66.67%, Val Loss 1.1380, Val Acc 62.31%
+- Epoch cuối (50): Train Loss 0.9697, Train Acc 66.24%, Val Loss 1.2064, Val Acc 60.59%
+- Test (864 ảnh): accuracy 52.31%, macro P 0.5262, macro R 0.5237, macro F1 0.5080, weighted F1 0.5144
 - Model đã lưu: `src/model1/checkpoints/m1_02.pt` (0.6 MB)
 
 | Lớp | Precision | Recall | F1 | Support |
 | --- | ---: | ---: | ---: | ---: |
-| Alu | 0.5400 | 0.5455 | 0.5427 | 99 |
-| Carton | 0.8472 | 0.5648 | 0.6778 | 108 |
-| Foam_box | 0.2977 | 0.4483 | 0.3578 | 87 |
-| Milk_box | 0.6800 | 0.5050 | 0.5795 | 101 |
-| Other | 0.1951 | 0.4800 | 0.2775 | 50 |
-| PET | 0.4490 | 0.4314 | 0.4400 | 102 |
-| Paper | 0.5524 | 0.5472 | 0.5498 | 106 |
-| Paper_cup | 0.5000 | 0.5238 | 0.5116 | 105 |
-| Plastic_cup | 0.2200 | 0.1038 | 0.1410 | 106 |
-| *macro avg* | 0.4757 | 0.4611 | 0.4531 | 864 |
-| *weighted avg* | 0.4971 | 0.4595 | 0.4656 | 864 |
+| Alu | 0.5288 | 0.5556 | 0.5419 | 99 |
+| Carton | 0.8590 | 0.6204 | 0.7204 | 108 |
+| Foam_box | 0.4058 | 0.3218 | 0.3590 | 87 |
+| Milk_box | 0.6446 | 0.7723 | 0.7027 | 101 |
+| Other | 0.3625 | 0.5800 | 0.4462 | 50 |
+| PET | 0.5052 | 0.4804 | 0.4925 | 102 |
+| Paper | 0.4012 | 0.6509 | 0.4964 | 106 |
+| Paper_cup | 0.5673 | 0.5619 | 0.5646 | 105 |
+| Plastic_cup | 0.4615 | 0.1698 | 0.2483 | 106 |
+| *macro avg* | 0.5262 | 0.5237 | 0.5080 | 864 |
+| *weighted avg* | 0.5396 | 0.5231 | 0.5144 | 864 |
 
-Lớp tốt nhất: Carton (F1 0.6778). Lớp kém nhất: Plastic_cup (F1 0.1410).
+Lớp tốt nhất: Carton (F1 0.7204). Lớp kém nhất: Plastic_cup (F1 0.2483).
 
 ### M1-03 — CNN 3 block
 
 - Notebook: `src/model1/m1_03.ipynb`
-- Cấu hình: ảnh 224×224; 3 × (Conv + BatchNorm + ReLU + MaxPool: 32, 64, 128) → AdaptiveAvgPool 4×4 → Linear 128 → 9 (Dropout 0.2). Resize rồi `ToTensor` (không chuẩn hóa, không augmentation), batch 64, Adam lr=1e-3, `CrossEntropyLoss`, tối đa 50 epoch, early stopping theo validation loss (patience 15), nạp lại trọng số có val loss thấp nhất trước khi test
-- Huấn luyện: chạy 31/50 epoch, dừng sớm (early stopping), mất 5.8 phút
-- Epoch tốt nhất (16): Train Loss 1.0292, Train Acc 64.66%, Val Loss 1.1974, Val Acc 59.94%
-- Epoch cuối (31): Train Loss 0.7460, Train Acc 73.70%, Val Loss 1.2028, Val Acc 62.14%
-- Test (864 ảnh): accuracy 48.73%, macro P 0.5196, macro R 0.4879, macro F1 0.4840, weighted F1 0.4920
+- Cấu hình: ảnh 224×224; 3 × (Conv + BatchNorm + ReLU + MaxPool: 32, 64, 128) → AdaptiveAvgPool 4×4 → Linear 128 → 9 (Dropout 0.2). train: Resize + HFlip + ColorJitter 0.1 + chuẩn hóa ImageNet, val/test: Resize + chuẩn hóa ImageNet, batch 64, Adam lr=1e-3, `CrossEntropyLoss`, tối đa 50 epoch, early stopping theo validation accuracy (patience 15), nạp lại trọng số có val accuracy cao nhất trước khi test
+- Huấn luyện: chạy 50/50 epoch, mất 7.9 phút
+- Epoch tốt nhất (45): Train Loss 0.7144, Train Acc 75.11%, Val Loss 0.9700, Val Acc 69.14%
+- Epoch cuối (50): Train Loss 0.6846, Train Acc 75.60%, Val Loss 1.0685, Val Acc 65.93%
+- Test (864 ảnh): accuracy 63.08%, macro P 0.6350, macro R 0.6272, macro F1 0.6253, weighted F1 0.6346
 - Model đã lưu: `src/model1/checkpoints/m1_03.pt` (1.4 MB)
 
 | Lớp | Precision | Recall | F1 | Support |
 | --- | ---: | ---: | ---: | ---: |
-| Alu | 0.5575 | 0.6364 | 0.5943 | 99 |
-| Carton | 0.8333 | 0.6019 | 0.6989 | 108 |
-| Foam_box | 0.6087 | 0.3218 | 0.4211 | 87 |
-| Milk_box | 0.6614 | 0.8317 | 0.7368 | 101 |
-| Other | 0.2826 | 0.5200 | 0.3662 | 50 |
-| PET | 0.2695 | 0.3725 | 0.3128 | 102 |
-| Paper | 0.6064 | 0.5377 | 0.5700 | 106 |
-| Paper_cup | 0.6275 | 0.3048 | 0.4103 | 105 |
-| Plastic_cup | 0.2295 | 0.2642 | 0.2456 | 106 |
-| *macro avg* | 0.5196 | 0.4879 | 0.4840 | 864 |
-| *weighted avg* | 0.5336 | 0.4873 | 0.4920 | 864 |
+| Alu | 0.8101 | 0.6465 | 0.7191 | 99 |
+| Carton | 0.8462 | 0.7130 | 0.7739 | 108 |
+| Foam_box | 0.5278 | 0.4368 | 0.4780 | 87 |
+| Milk_box | 0.7677 | 0.7525 | 0.7600 | 101 |
+| Other | 0.4429 | 0.6200 | 0.5167 | 50 |
+| PET | 0.4931 | 0.6961 | 0.5772 | 102 |
+| Paper | 0.6923 | 0.6792 | 0.6857 | 106 |
+| Paper_cup | 0.6733 | 0.6476 | 0.6602 | 105 |
+| Plastic_cup | 0.4615 | 0.4528 | 0.4571 | 106 |
+| *macro avg* | 0.6350 | 0.6272 | 0.6253 | 864 |
+| *weighted avg* | 0.6487 | 0.6308 | 0.6346 | 864 |
 
-Lớp tốt nhất: Milk_box (F1 0.7368). Lớp kém nhất: Plastic_cup (F1 0.2456).
+Lớp tốt nhất: Carton (F1 0.7739). Lớp kém nhất: Plastic_cup (F1 0.4571).
 
 ### M1-04 — CNN 3 block + GAP
 
 - Notebook: `src/model1/m1_04.ipynb`
-- Cấu hình: ảnh 224×224; 3 × (Conv + BatchNorm + ReLU + MaxPool: 32, 64, 128) → Global Average Pooling → Linear 9. Resize rồi `ToTensor` (không chuẩn hóa, không augmentation), batch 64, Adam lr=1e-3, `CrossEntropyLoss`, tối đa 50 epoch, early stopping theo validation loss (patience 15), nạp lại trọng số có val loss thấp nhất trước khi test
-- Huấn luyện: chạy 50/50 epoch, mất 8.5 phút
-- Epoch tốt nhất (50): Train Loss 1.0731, Train Acc 64.70%, Val Loss 1.3353, Val Acc 55.43%
-- Epoch cuối (50): Train Loss 1.0731, Train Acc 64.70%, Val Loss 1.3353, Val Acc 55.43%
-- Test (864 ảnh): accuracy 45.95%, macro P 0.4792, macro R 0.4610, macro F1 0.4167, weighted F1 0.4189
+- Cấu hình: ảnh 224×224; 3 × (Conv + BatchNorm + ReLU + MaxPool: 32, 64, 128) → Global Average Pooling → Linear 9. train: Resize + HFlip + ColorJitter 0.1 + chuẩn hóa ImageNet, val/test: Resize + chuẩn hóa ImageNet, batch 64, Adam lr=1e-3, `CrossEntropyLoss`, tối đa 50 epoch, early stopping theo validation accuracy (patience 15), nạp lại trọng số có val accuracy cao nhất trước khi test
+- Huấn luyện: chạy 50/50 epoch, mất 8.1 phút
+- Epoch tốt nhất (44): Train Loss 1.1526, Train Acc 61.61%, Val Loss 1.2513, Val Acc 60.36%
+- Epoch cuối (50): Train Loss 1.1192, Train Acc 63.15%, Val Loss 1.2766, Val Acc 58.87%
+- Test (864 ảnh): accuracy 48.84%, macro P 0.4926, macro R 0.4983, macro F1 0.4771, weighted F1 0.4827
 - Model đã lưu: `src/model1/checkpoints/m1_04.pt` (0.4 MB)
 
 | Lớp | Precision | Recall | F1 | Support |
 | --- | ---: | ---: | ---: | ---: |
-| Alu | 0.6933 | 0.5253 | 0.5977 | 99 |
-| Carton | 0.8434 | 0.6481 | 0.7330 | 108 |
-| Foam_box | 0.1935 | 0.1379 | 0.1611 | 87 |
-| Milk_box | 0.6731 | 0.6931 | 0.6829 | 101 |
-| Other | 0.3590 | 0.5600 | 0.4375 | 50 |
-| PET | 0.3029 | 0.7157 | 0.4257 | 102 |
-| Paper | 0.4010 | 0.7642 | 0.5260 | 106 |
-| Paper_cup | 0.8462 | 0.1048 | 0.1864 | 105 |
+| Alu | 0.7463 | 0.5051 | 0.6024 | 99 |
+| Carton | 0.8211 | 0.7222 | 0.7685 | 108 |
+| Foam_box | 0.4068 | 0.2759 | 0.3288 | 87 |
+| Milk_box | 0.6571 | 0.6832 | 0.6699 | 101 |
+| Other | 0.3025 | 0.7200 | 0.4260 | 50 |
+| PET | 0.2582 | 0.4608 | 0.3310 | 102 |
+| Paper | 0.5702 | 0.6132 | 0.5909 | 106 |
+| Paper_cup | 0.6709 | 0.5048 | 0.5761 | 105 |
 | Plastic_cup | 0.0000 | 0.0000 | 0.0000 | 106 |
-| *macro avg* | 0.4792 | 0.4610 | 0.4167 | 864 |
-| *weighted avg* | 0.4916 | 0.4595 | 0.4189 | 864 |
+| *macro avg* | 0.4926 | 0.4983 | 0.4771 | 864 |
+| *weighted avg* | 0.5054 | 0.4884 | 0.4827 | 864 |
 
-Lớp tốt nhất: Carton (F1 0.7330). Lớp kém nhất: Plastic_cup (F1 0.0000).
+Lớp tốt nhất: Carton (F1 0.7685). Lớp kém nhất: Plastic_cup (F1 0.0000).
 
 ## Model 2
 
 ### CNN sequential
 
 - Notebook: `src/model2/notebook/cnn_sequential.ipynb`
-- Cấu hình: 3 stage × 2 Conv 3×3 (48, 96, 192) + BatchNorm, MaxPool mỗi stage → GAP → Linear 256 → 9 (Dropout 0.3). Ảnh 224×224, train: HFlip + Rotation 10° + ColorJitter 0.1, chuẩn hóa ImageNet; batch 32, AdamW lr=1e-4 weight_decay=5e-4, cosine annealing, `CrossEntropyLoss` có trọng số lớp (cân bằng lớp), chạy đủ 30 epoch (không early stopping), giữ trọng số có validation accuracy cao nhất
+- Cấu hình: 3 stage × 2 Conv 3×3 (48, 96, 192) + BatchNorm, MaxPool mỗi stage → GAP → Linear 256 → 9 (Dropout 0.3). Ảnh 224×224, train: HFlip + ColorJitter 0.1, chuẩn hóa ImageNet; batch 32, AdamW lr=1e-4 weight_decay=5e-4, cosine annealing, `CrossEntropyLoss` có trọng số lớp (cân bằng lớp), tối đa 30 epoch, early stopping theo validation accuracy (patience 7), nạp lại trọng số có validation accuracy cao nhất trước khi test
 - Tham số: 697.849
-- Huấn luyện: chạy 30/30 epoch, mất 16.0 phút
-- Epoch tốt nhất (28): Train Loss 0.9434, Train Acc 69.14%, Val Loss 1.0261, Val Acc 68.25%
-- Epoch cuối (30): Train Loss 0.9398, Train Acc 69.87%, Val Loss 1.0201, Val Acc 68.13%
-- Test (864 ảnh): accuracy 64.12%, macro P 0.6358, macro R 0.6330, macro F1 0.6320, weighted F1 0.6411
+- Huấn luyện: chạy 30/30 epoch, mất 16.1 phút
+- Epoch tốt nhất (30): Train Loss 0.8944, Train Acc 71.75%, Val Loss 0.9804, Val Acc 69.38%
+- Epoch cuối (30): Train Loss 0.8944, Train Acc 71.75%, Val Loss 0.9804, Val Acc 69.38%
+- Test (864 ảnh): accuracy 65.97%, macro P 0.6607, macro R 0.6610, macro F1 0.6526, weighted F1 0.6602
 - Model đã lưu: `src/model2/checkpoints/cnn_sequential.pt` (2.7 MB)
 
 | Lớp | Precision | Recall | F1 | Support |
 | --- | ---: | ---: | ---: | ---: |
-| Alu | 0.6863 | 0.7071 | 0.6965 | 99 |
-| Carton | 0.8438 | 0.7500 | 0.7941 | 108 |
-| Foam_box | 0.5775 | 0.4713 | 0.5190 | 87 |
-| Milk_box | 0.7353 | 0.7426 | 0.7389 | 101 |
-| Other | 0.5000 | 0.5600 | 0.5283 | 50 |
-| PET | 0.5169 | 0.4510 | 0.4817 | 102 |
-| Paper | 0.6607 | 0.6981 | 0.6789 | 106 |
-| Paper_cup | 0.6800 | 0.6476 | 0.6634 | 105 |
-| Plastic_cup | 0.5221 | 0.6698 | 0.5868 | 106 |
-| *macro avg* | 0.6358 | 0.6330 | 0.6320 | 864 |
-| *weighted avg* | 0.6459 | 0.6412 | 0.6411 | 864 |
+| Alu | 0.7157 | 0.7374 | 0.7264 | 99 |
+| Carton | 0.8163 | 0.7407 | 0.7767 | 108 |
+| Foam_box | 0.4700 | 0.5402 | 0.5027 | 87 |
+| Milk_box | 0.8283 | 0.8119 | 0.8200 | 101 |
+| Other | 0.4800 | 0.7200 | 0.5760 | 50 |
+| PET | 0.6949 | 0.4020 | 0.5093 | 102 |
+| Paper | 0.7113 | 0.6509 | 0.6798 | 106 |
+| Paper_cup | 0.6981 | 0.7048 | 0.7014 | 105 |
+| Plastic_cup | 0.5312 | 0.6415 | 0.5812 | 106 |
+| *macro avg* | 0.6607 | 0.6610 | 0.6526 | 864 |
+| *weighted avg* | 0.6753 | 0.6597 | 0.6602 | 864 |
 
-Lớp tốt nhất: Carton (F1 0.7941). Lớp kém nhất: PET (F1 0.4817).
+Lớp tốt nhất: Milk_box (F1 0.8200). Lớp kém nhất: Foam_box (F1 0.5027).
 
 ### CNN parallel
 
 - Notebook: `src/model2/notebook/cnn_parallel.ipynb`
-- Cấu hình: 3 nhánh Conv song song (1 conv, 2 conv, conv dilation 2; 32 kênh mỗi nhánh) nối thành 96 kênh → 3 khối residual stride 2 (64, 128, 192) → GAP → Linear 256 → 9 (Dropout 0.4). Ảnh 224×224, train: HFlip + Rotation 10° + ColorJitter 0.1, chuẩn hóa ImageNet; batch 32, AdamW lr=1e-4 weight_decay=5e-4, cosine annealing, `CrossEntropyLoss` có trọng số lớp (cân bằng lớp), chạy đủ 30 epoch (không early stopping), giữ trọng số có validation accuracy cao nhất
-- Huấn luyện: chạy 30/30 epoch, mất 18.2 phút
-- Epoch tốt nhất (27 — suy ra từ log: epoch có Val Acc cao nhất, notebook không in): Train Acc 69.08%, Val Acc 69.73%
-- Epoch cuối (30): Train Acc 69.06%, Val Acc 69.38%
-- Test (864 ảnh): accuracy 64.12%, macro P 0.6348, macro R 0.6397, macro F1 0.6339, weighted F1 0.6428
+- Cấu hình: 3 nhánh Conv song song (1 conv, 2 conv, conv dilation 2; 32 kênh mỗi nhánh) nối thành 96 kênh → 3 khối residual stride 2 (64, 128, 192) → GAP → Linear 256 → 9 (Dropout 0.4). Ảnh 224×224, train: HFlip + ColorJitter 0.1, chuẩn hóa ImageNet; batch 32, AdamW lr=1e-4 weight_decay=5e-4, cosine annealing, `CrossEntropyLoss` có trọng số lớp (cân bằng lớp), tối đa 30 epoch, early stopping theo validation accuracy (patience 7), nạp lại trọng số có validation accuracy cao nhất trước khi test
+- Huấn luyện: chạy 30/30 epoch, mất 17.8 phút
+- Epoch tốt nhất (30): Train Loss 0.8483, Train Acc 72.90%, Val Loss 0.9281, Val Acc 70.74%
+- Epoch cuối (30): Train Loss 0.8483, Train Acc 72.90%, Val Loss 0.9281, Val Acc 70.74%
+- Test (864 ảnh): accuracy 68.17%, macro P 0.6782, macro R 0.6801, macro F1 0.6754, weighted F1 0.6841
 - Model đã lưu: `src/model2/checkpoints/cnn_parallel.pt` (3.7 MB)
 
 | Lớp | Precision | Recall | F1 | Support |
 | --- | ---: | ---: | ---: | ---: |
-| Alu | 0.6214 | 0.6465 | 0.6337 | 99 |
-| Carton | 0.7850 | 0.7778 | 0.7814 | 108 |
-| Foam_box | 0.5333 | 0.4598 | 0.4938 | 87 |
-| Milk_box | 0.8542 | 0.8119 | 0.8325 | 101 |
-| Other | 0.4533 | 0.6800 | 0.5440 | 50 |
-| PET | 0.4646 | 0.4510 | 0.4577 | 102 |
-| Paper | 0.7500 | 0.6792 | 0.7129 | 106 |
-| Paper_cup | 0.6907 | 0.6381 | 0.6634 | 105 |
-| Plastic_cup | 0.5603 | 0.6132 | 0.5856 | 106 |
-| *macro avg* | 0.6348 | 0.6397 | 0.6339 | 864 |
-| *weighted avg* | 0.6487 | 0.6412 | 0.6428 | 864 |
+| Alu | 0.7586 | 0.6667 | 0.7097 | 99 |
+| Carton | 0.8485 | 0.7778 | 0.8116 | 108 |
+| Foam_box | 0.4944 | 0.5057 | 0.5000 | 87 |
+| Milk_box | 0.8901 | 0.8020 | 0.8438 | 101 |
+| Other | 0.5070 | 0.7200 | 0.5950 | 50 |
+| PET | 0.6047 | 0.5098 | 0.5532 | 102 |
+| Paper | 0.7075 | 0.7075 | 0.7075 | 106 |
+| Paper_cup | 0.7207 | 0.7619 | 0.7407 | 105 |
+| Plastic_cup | 0.5726 | 0.6698 | 0.6174 | 106 |
+| *macro avg* | 0.6782 | 0.6801 | 0.6754 | 864 |
+| *weighted avg* | 0.6922 | 0.6817 | 0.6841 | 864 |
 
-Lớp tốt nhất: Milk_box (F1 0.8325). Lớp kém nhất: PET (F1 0.4577).
+Lớp tốt nhất: Milk_box (F1 0.8438). Lớp kém nhất: Foam_box (F1 0.5000).
 
 ### VGG sequential
 
 - Notebook: `src/model2/notebook/vgg_sequential.ipynb`
-- Cấu hình: kiểu VGG-16 có BatchNorm (13 conv: 64, 128, 256, 512, 512) → GAP → Linear 128 → 9 (Dropout 0.6). Ảnh 224×224, train: HFlip + Rotation 10° + ColorJitter 0.1, chuẩn hóa ImageNet; batch 32, AdamW lr=1e-4 weight_decay=5e-4, cosine annealing, `CrossEntropyLoss` có trọng số lớp (cân bằng lớp), chạy đủ 30 epoch (không early stopping), giữ trọng số có validation accuracy cao nhất
-- Huấn luyện: chạy 30/30 epoch, mất 29.3 phút
-- Epoch tốt nhất (29 — suy ra từ log: epoch có Val Acc cao nhất, notebook không in): Train Acc 84.24%, Val Acc 80.71%
-- Epoch cuối (30): Train Acc 85.10%, Val Acc 80.00%
-- Test (864 ảnh): accuracy 73.38%, macro P 0.7276, macro R 0.7271, macro F1 0.7217, weighted F1 0.7330
+- Cấu hình: kiểu VGG-16 có BatchNorm (13 conv: 64, 128, 256, 512, 512) → GAP → Linear 128 → 9 (Dropout 0.6). Ảnh 224×224, train: HFlip + ColorJitter 0.1, chuẩn hóa ImageNet; batch 32, AdamW lr=1e-4 weight_decay=5e-4, cosine annealing, `CrossEntropyLoss` có trọng số lớp (cân bằng lớp), tối đa 30 epoch, early stopping theo validation accuracy (patience 7), nạp lại trọng số có validation accuracy cao nhất trước khi test
+- Huấn luyện: chạy 30/30 epoch, mất 29.1 phút
+- Epoch tốt nhất (25): Train Loss 0.5318, Train Acc 83.29%, Val Loss 0.6664, Val Acc 79.70%
+- Epoch cuối (30): Train Loss 0.4763, Train Acc 85.40%, Val Loss 0.6561, Val Acc 79.47%
+- Test (864 ảnh): accuracy 72.34%, macro P 0.7202, macro R 0.7175, macro F1 0.7109, weighted F1 0.7242
 - Model đã lưu: `src/model2/checkpoints/vgg_sequential.pt` (56.5 MB)
 
 | Lớp | Precision | Recall | F1 | Support |
 | --- | ---: | ---: | ---: | ---: |
-| Alu | 0.7677 | 0.7677 | 0.7677 | 99 |
-| Carton | 0.8824 | 0.8333 | 0.8571 | 108 |
-| Foam_box | 0.7455 | 0.4713 | 0.5775 | 87 |
-| Milk_box | 0.8812 | 0.8812 | 0.8812 | 101 |
-| Other | 0.5072 | 0.7000 | 0.5882 | 50 |
-| PET | 0.5752 | 0.6373 | 0.6047 | 102 |
-| Paper | 0.7350 | 0.8113 | 0.7713 | 106 |
-| Paper_cup | 0.8505 | 0.8667 | 0.8585 | 105 |
-| Plastic_cup | 0.6040 | 0.5755 | 0.5894 | 106 |
-| *macro avg* | 0.7276 | 0.7271 | 0.7217 | 864 |
-| *weighted avg* | 0.7412 | 0.7338 | 0.7330 | 864 |
+| Alu | 0.7843 | 0.8081 | 0.7960 | 99 |
+| Carton | 0.8866 | 0.7963 | 0.8390 | 108 |
+| Foam_box | 0.7358 | 0.4483 | 0.5571 | 87 |
+| Milk_box | 0.8866 | 0.8515 | 0.8687 | 101 |
+| Other | 0.4430 | 0.7000 | 0.5426 | 50 |
+| PET | 0.5739 | 0.6471 | 0.6083 | 102 |
+| Paper | 0.7500 | 0.7075 | 0.7282 | 106 |
+| Paper_cup | 0.7931 | 0.8762 | 0.8326 | 105 |
+| Plastic_cup | 0.6286 | 0.6226 | 0.6256 | 106 |
+| *macro avg* | 0.7202 | 0.7175 | 0.7109 | 864 |
+| *weighted avg* | 0.7373 | 0.7234 | 0.7242 | 864 |
 
-Lớp tốt nhất: Milk_box (F1 0.8812). Lớp kém nhất: Foam_box (F1 0.5775).
+Lớp tốt nhất: Milk_box (F1 0.8687). Lớp kém nhất: Other (F1 0.5426).
 
 ### VGG parallel
 
 - Notebook: `src/model2/notebook/vgg_parallel.ipynb`
-- Cấu hình: 3 nhánh đầu vào (3×3, 3×3 dilation 2, 5×5; 64 kênh mỗi nhánh) nối thành 192 kênh → 5 stage kiểu VGG → GAP → Linear 128 → 9 (Dropout 0.6). Ảnh 224×224, train: HFlip + Rotation 10° + ColorJitter 0.1, chuẩn hóa ImageNet; batch 32, AdamW lr=1e-4 weight_decay=5e-4, cosine annealing, `CrossEntropyLoss` có trọng số lớp (cân bằng lớp), chạy đủ 30 epoch (không early stopping), giữ trọng số có validation accuracy cao nhất
-- Huấn luyện: chạy 30/30 epoch, mất 45.3 phút
-- Epoch tốt nhất (28 — suy ra từ log: epoch có Val Acc cao nhất, notebook không in): Train Acc 87.63%, Val Acc 82.08%
-- Epoch cuối (30): Train Acc 87.82%, Val Acc 81.72%
-- Test (864 ảnh): accuracy 76.04%, macro P 0.7561, macro R 0.7601, macro F1 0.7487, weighted F1 0.7530
+- Cấu hình: 3 nhánh đầu vào (3×3, 3×3 dilation 2, 5×5; 64 kênh mỗi nhánh) nối thành 192 kênh → 5 stage kiểu VGG → GAP → Linear 128 → 9 (Dropout 0.6). Ảnh 224×224, train: HFlip + ColorJitter 0.1, chuẩn hóa ImageNet; batch 32, AdamW lr=1e-4 weight_decay=5e-4, cosine annealing, `CrossEntropyLoss` có trọng số lớp (cân bằng lớp), tối đa 30 epoch, early stopping theo validation accuracy (patience 7), nạp lại trọng số có validation accuracy cao nhất trước khi test
+- Huấn luyện: chạy 30/30 epoch, mất 37.4 phút
+- Epoch tốt nhất (28): Train Loss 0.3572, Train Acc 89.24%, Val Loss 0.5527, Val Acc 82.55%
+- Epoch cuối (30): Train Loss 0.3375, Train Acc 89.53%, Val Loss 0.5584, Val Acc 82.55%
+- Test (864 ảnh): accuracy 76.04%, macro P 0.7570, macro R 0.7569, macro F1 0.7477, weighted F1 0.7589
 - Model đã lưu: `src/model2/checkpoints/vgg_parallel.pt` (20.6 MB)
 
 | Lớp | Precision | Recall | F1 | Support |
 | --- | ---: | ---: | ---: | ---: |
-| Alu | 0.7706 | 0.8485 | 0.8077 | 99 |
-| Carton | 0.8641 | 0.8241 | 0.8436 | 108 |
-| Foam_box | 0.7333 | 0.3793 | 0.5000 | 87 |
-| Milk_box | 0.8261 | 0.9406 | 0.8796 | 101 |
-| Other | 0.6719 | 0.8600 | 0.7544 | 50 |
-| PET | 0.5968 | 0.7255 | 0.6549 | 102 |
-| Paper | 0.7905 | 0.7830 | 0.7867 | 106 |
-| Paper_cup | 0.8624 | 0.8952 | 0.8785 | 105 |
-| Plastic_cup | 0.6889 | 0.5849 | 0.6327 | 106 |
-| *macro avg* | 0.7561 | 0.7601 | 0.7487 | 864 |
-| *weighted avg* | 0.7624 | 0.7604 | 0.7530 | 864 |
+| Alu | 0.8667 | 0.7879 | 0.8254 | 99 |
+| Carton | 0.8962 | 0.8796 | 0.8879 | 108 |
+| Foam_box | 0.8000 | 0.4598 | 0.5839 | 87 |
+| Milk_box | 0.8544 | 0.8713 | 0.8627 | 101 |
+| Other | 0.5063 | 0.8000 | 0.6202 | 50 |
+| PET | 0.6311 | 0.6373 | 0.6341 | 102 |
+| Paper | 0.8019 | 0.8019 | 0.8019 | 106 |
+| Paper_cup | 0.8291 | 0.9238 | 0.8739 | 105 |
+| Plastic_cup | 0.6273 | 0.6509 | 0.6389 | 106 |
+| *macro avg* | 0.7570 | 0.7569 | 0.7477 | 864 |
+| *weighted avg* | 0.7717 | 0.7604 | 0.7589 | 864 |
 
-Lớp tốt nhất: Milk_box (F1 0.8796). Lớp kém nhất: Foam_box (F1 0.5000).
+Lớp tốt nhất: Carton (F1 0.8879). Lớp kém nhất: Foam_box (F1 0.5839).
 
 ### ResNet (tự viết, không phải ResNet-18 chuẩn)
 
+- Lưu ý: đây là kết quả **cũ** (chạy 2026-10-11, batch 32, chưa có early stopping). Notebook hiện đã đổi `BATCH_SIZE` 32 → 24 và `PATIENCE = 7` nhưng chưa chạy lại, và `src/model2/checkpoints/resnet.pt` vẫn là file của lần chạy cũ.
 - Notebook: `src/model2/notebook/resnet.ipynb`
 - Cấu hình: stem Conv 3×3 stride 1, 4 stage × 2 BasicBlock (64, 128, 256, 512) → GAP → Dropout 0.5 → Linear 128 → Dropout 0.5 → 9; thêm label smoothing 0.05. Ảnh 224×224, train: HFlip + Rotation 10° + ColorJitter 0.1, chuẩn hóa ImageNet; batch 32, AdamW lr=1e-4 weight_decay=5e-4, cosine annealing, `CrossEntropyLoss` có trọng số lớp (cân bằng lớp), chạy đủ 30 epoch (không early stopping), giữ trọng số có validation accuracy cao nhất
 - Huấn luyện: chạy 30/30 epoch, mất 90.7 phút
