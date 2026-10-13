@@ -43,7 +43,7 @@ is `calculate_metrics` from `py/metrics.py`.
   (brightness/contrast/saturation 0.1), ToTensor and ImageNet Normalize. Validation
   and test use Resize, ToTensor and the same Normalize.
 - **Training**: up to 30 epochs, batch 32 (`resnet`: batch 24, because batch 32 ran out of GPU memory
-  and slowed to ~17 min/epoch), AdamW + cosine schedule, class-weighted
+  and slowed to ~17 min/epoch; with batch 24 it takes ~3 min/epoch), AdamW + cosine schedule, class-weighted
   loss. Early stopping monitors validation accuracy with `PATIENCE = 7`. The weights with the best validation accuracy are kept in RAM and loaded
   back into the model after the loop.
 - **Test**: `calculate_metrics` prints accuracy, macro precision / recall / F1
@@ -64,34 +64,35 @@ overwrites its file with that run's best-validation weights; the files that were
 there before (and every other older run) are in `checkpoints/archive/`, nothing
 was deleted.
 
-The first four rows were rerun on 2026-10-13 with the current notebooks (ImageNet normalize,
-HFlip + ColorJitter, early stopping with `PATIENCE = 7`; RTX 5070, 8 DataLoader workers). The
-`resnet` row is the older 2026-10-11 run (batch 32, no early stopping) because its rerun was
-stopped; the notebook is now set to batch 24 and has not been rerun. The 2026-10-11 files that
-the rerun overwrote were kept in a backup folder outside the repo (`backup_checkpoints_20261013`).
+All five rows were rerun on 2026-10-13 with the current notebooks (ImageNet normalize,
+HFlip + ColorJitter, early stopping with `PATIENCE = 7`; RTX 5070, 8 DataLoader workers).
+`resnet` ran with batch 24 (batch 32 was too slow, see above) and `cnn_parallel` was run
+twice that day (68.17% and 64.58%, no seed); the table shows the second run. The 2026-10-11
+files that the rerun overwrote were kept in a backup folder outside the repo
+(`backup_checkpoints_20261013`).
 Per-class precision / recall / F1 / support for each model is in
 [../../RESULTS.md](../../RESULTS.md).
 
 | File | Val acc (best epoch) | Test acc | Macro F1 | Epoch | Time | Old `train.py` pick (test acc) |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | `cnn_sequential.pt` | 69.38% | 65.97% | 0.6526 | 30 / 30 | 16.1 min | 70.49% |
-| `cnn_parallel.pt` | 70.74% | 68.17% | 0.6754 | 30 / 30 | 17.8 min | 69.21% |
+| `cnn_parallel.pt` | 71.45% | 64.58% | 0.6361 | 26 / 30 | 18.6 min | 69.21% |
 | `vgg_sequential.pt` | 79.70% | 72.34% | 0.7109 | 25 / 30 | 29.1 min | 75.81% |
 | `vgg_parallel.pt` | 82.55% | **76.04%** | **0.7477** | 28 / 30 | 37.4 min | 76.97% |
-| `resnet.pt` (old run) | 75.07% | 69.33% | 0.6813 | 30 / 30 | 90.7 min | 70.14% |
+| `resnet.pt` (batch 24) | 76.91% | 69.91% | 0.6936 | 29 / 30 | 58.9 min | 70.14% |
 
-- The best epoch of the four rerun models is 30, 30, 25 and 28 of 30 and early stopping
-  never triggered, so none of them stopped improving before the 30-epoch limit; whether
-  more epochs would help was not tested.
-- The notebook runs are 0.8–4.5 points of test accuracy below the old `train.py`
+- The best epoch of the five models is 30, 26, 25, 28 and 29 of 30 and early stopping
+  never triggered, so none of them clearly stopped improving before the 30-epoch limit;
+  whether more epochs would help was not tested.
+- The notebook runs are 0.2–4.6 points of test accuracy below the old `train.py`
   picks. The two pipelines differ (the old script used CUDA bfloat16 autocast and
   its own run selection), so the gap is not attributed to a single cause.
 - `vgg_parallel` has the best score and a file less than half the size of
   `vgg_sequential` (20.6 MB vs 56.5 MB), but it is a single run per model, so the
   difference between the two VGG variants is not established.
 - The class with the lowest F1 is `Foam_box` for `cnn_sequential`, `cnn_parallel` and
-  `vgg_parallel` (recall 0.54, 0.51 and 0.46), `Other` for `vgg_sequential`, and `PET` for
-  the old `resnet` run.
+  `vgg_parallel` (recall 0.54, 0.44 and 0.46), `Other` for `vgg_sequential`, and
+  `Plastic_cup` for `resnet` (recall 0.49).
 
 ## Check a model
 

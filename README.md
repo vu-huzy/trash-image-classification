@@ -127,21 +127,21 @@ file chuẩn `src/model2/checkpoints/<model>.pt`, các lần chạy cũ nằm tr
 `src/model2/Predict.py`. Chi tiết (bảng checkpoint, lưu ý về `resnet`): [src/model2/README.md](src/model2/README.md);
 bảng từng lớp: [RESULTS.md](RESULTS.md).
 
-Kết quả (4 notebook chạy lại ngày 2026-10-13 với code `cdee048`, patience 7; `resnet` là kết quả cũ ngày
-2026-10-11 vì lần chạy lại bị dừng; GPU RTX 5070):
+Kết quả (chạy lại ngày 2026-10-13 với code `cdee048`, patience 7; `resnet` chạy với batch 24; GPU RTX 5070):
 
 | Model | Test accuracy | Macro F1 | Epoch tốt nhất | Thời gian |
 | --- | ---: | ---: | ---: | ---: |
 | cnn_sequential | 65.97% | 0.6526 | 30 / 30 | 16.1 phút |
-| cnn_parallel | 68.17% | 0.6754 | 30 / 30 | 17.8 phút |
+| cnn_parallel | 64.58% | 0.6361 | 26 / 30 | 18.6 phút |
 | vgg_sequential | 72.34% | 0.7109 | 25 / 30 | 29.1 phút |
 | vgg_parallel | **76.04%** | **0.7477** | 28 / 30 | 37.4 phút |
-| resnet (kết quả cũ) | 69.33% | 0.6813 | 30 / 30 | 90.7 phút |
+| resnet (batch 24) | 69.91% | 0.6936 | 29 / 30 | 58.9 phút |
 
-Epoch tốt nhất của 4 model chạy lại là 30, 30, 25 và 28 trên 30, early stopping không kích hoạt ở model nào, tức là
-chưa model nào ngừng cải thiện trước giới hạn epoch. So với checkpoint cũ chọn từ các lần chạy `train.py`, 4 bản
-notebook mới thấp hơn 0.9–4.5 điểm accuracy; hai pipeline khác nhau nên chưa quy được cho một nguyên nhân.
-Mỗi model chỉ chạy một lần.
+Epoch tốt nhất của 5 model là 30, 26, 25, 28 và 29 trên 30, early stopping không kích hoạt ở model nào, tức là
+chưa model nào ngừng cải thiện hẳn trước giới hạn epoch. So với checkpoint cũ chọn từ các lần chạy `train.py`, 5 bản
+notebook mới thấp hơn 0.2–4.6 điểm accuracy; hai pipeline khác nhau nên chưa quy được cho một nguyên nhân.
+Các notebook không đặt seed (trừ `cnn_sequential`): `cnn_parallel` chạy hai lần trong cùng ngày cho 68.17% và
+64.58%, nên chênh lệch vài điểm giữa các model chưa chắc là thật.
 
 ### Model 3 — transfer learning với pretrained backbone
 
@@ -202,22 +202,23 @@ Chạy nối tiếp 14 notebook bằng `nbconvert --execute --inplace` (GPU RTX 
 | `m1_03` | 50 / 50 | 45 | không | 69.14% | 63.08% | 0.6253 | 7.9 phút |
 | `m1_04` | 50 / 50 | 44 | không | 60.36% | 48.84% | 0.4771 | 8.1 phút |
 | `cnn_sequential` | 30 / 30 | 30 | không | 69.38% | 65.97% | 0.6526 | 16.1 phút |
-| `cnn_parallel` | 30 / 30 | 30 | không | 70.74% | 68.17% | 0.6754 | 17.8 phút |
+| `cnn_parallel` | 30 / 30 | 26 | không | 71.45% | 64.58% | 0.6361 | 18.6 phút (lần chạy bổ sung) |
 | `vgg_sequential` | 30 / 30 | 25 | không | 79.70% | 72.34% | 0.7109 | 29.1 phút |
 | `vgg_parallel` | 30 / 30 | 28 | không | 82.55% | 76.04% | 0.7477 | 37.4 phút |
+| `resnet` (batch 24) | 30 / 30 | 29 | không | 76.91% | 69.91% | 0.6936 | 58.9 phút (lần chạy bổ sung) |
 
 - Early stopping gần như không kích hoạt ở Model 1/2: epoch tốt nhất nằm sát giới hạn epoch (44–49 / 50, 25–30 / 30),
   tức model còn đang cải thiện khi hết epoch. Đổi patience (7 hay 15) không đổi kết quả ở hai nhóm này; muốn tốt hơn
   phải tăng số epoch hoặc đổi cách train.
-- `resnet` (Model 2) **không có kết quả mới**: chạy 140 phút vẫn chưa xong rồi bị dừng. Epoch đầu mất ~16 phút
-  (~17 phút/epoch, lần trước ~3 phút/epoch); VRAM 11.9/12.2 GB, GPU báo 100% nhưng chỉ ~52 W, nghi thiếu VRAM.
-  Notebook `resnet.ipynb` không bị ghi đè kết quả; đã hạ `BATCH_SIZE` từ 32 xuống 24 để tránh tràn VRAM, **chưa chạy lại**.
-  `src/model2/checkpoints/resnet.pt` hiện là file cũ (chạy 2026-10-11, batch 32, chưa có early stopping), được chép lại từ backup.
+- `resnet` (Model 2): lần chạy đầu với batch 32 bị dừng sau 140 phút vì quá chậm (~17 phút/epoch; VRAM 11.9/12.2 GB,
+  GPU báo 100% nhưng chỉ ~52 W, nghi thiếu VRAM). Đã hạ `BATCH_SIZE` 32 → 24 và chạy lại: ~3 phút/epoch, 30 epoch
+  xong sau 58.9 phút, test 69.91% (kết quả cũ ngày 2026-10-11 là 69.33%). `src/model2/checkpoints/resnet.pt` là file mới;
+  file cũ nằm trong thư mục backup. `cnn_parallel` cũng được chạy lại một lần nữa (64.58%, lần trước 68.17%).
 - Model 3 **không chạy lại**: output trong 5 notebook, `src/model3/results/` và checkpoint là của lần chạy ngày
   2026-10-11 với patience 6 (3D: 5); patience trong 5 notebook đã được đặt lại đúng 6 (3D: 5) để khớp với kết quả đó.
 - Kernel `python3` trong lần chạy này là `anaconda3\envs\gpu` (torch 2.11.0+cu128), xem mục môi trường ở trên.
 - `RESULTS.md` và các bảng kết quả Model 1/2 ở phía trên (kèm `src/model2/README.md`) đã được cập nhật theo bảng này;
-  riêng `resnet` và Model 3 vẫn giữ số của lần chạy ngày 2026-10-11.
+  riêng Model 3 vẫn giữ số của lần chạy ngày 2026-10-11.
 
 ## Việc còn thiếu / gợi ý tiếp theo
 
