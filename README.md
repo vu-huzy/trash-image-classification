@@ -174,7 +174,7 @@ Vẫn khác nhau (chưa gom, cần quyết định trước khi so sánh model v
 
 | Hạng mục | Model 1 | Model 2 | Model 3 |
 | --- | --- | --- | --- |
-| Patience / số epoch tối đa | 15 / 50 | 7 / 30 | 7 / 30 |
+| Patience / số epoch tối đa | 15 / 50 | 7 / 30 | 6 / 30 (3D: 5 / 30) |
 | Optimizer + scheduler | Adam 1e-3, không scheduler | AdamW 1e-4, wd 5e-4, cosine | AdamW, head 1e-3, wd 1e-4 (3D: wd 0.01), cosine |
 | Batch size | 64 | 32 (`resnet`: 24) | 64 (3A/3B), 32 (3C/3D) |
 | Class weight / label smoothing | không / không | có / chỉ `resnet` (0.05) | không / không |
@@ -187,7 +187,7 @@ Môi trường chạy: kernelspec `python3` của user (`%APPDATA%\jupyter\kerne
 (torch 2.11.0+cu128, scikit-learn 1.9.0), **không phải** `.venv` (torch 2.14.0+cu130 theo `requirements.txt`).
 Notebook chạy bằng kernel `python3` sẽ dùng env anaconda, cần ghi rõ env khi so sánh kết quả giữa các lần chạy.
 
-### Kết quả chạy lại ngày 2026-10-13 (code `cdee048`, patience Model 2/3 đặt về 7)
+### Kết quả chạy lại ngày 2026-10-13 (code `cdee048`, patience Model 2 đặt về 7)
 
 Chạy nối tiếp 14 notebook bằng `nbconvert --execute --inplace` (GPU RTX 5070). Checkpoint cũ được cất ở
 `C:\dl-project\backup_checkpoints_20261013\{model1,model2,model3}` trước khi chạy.
@@ -211,7 +211,7 @@ Chạy nối tiếp 14 notebook bằng `nbconvert --execute --inplace` (GPU RTX 
   Notebook `resnet.ipynb` không bị ghi đè kết quả; đã hạ `BATCH_SIZE` từ 32 xuống 24 để tránh tràn VRAM, **chưa chạy lại**.
   `src/model2/checkpoints/resnet.pt` hiện là file cũ (chạy 2026-10-11, batch 32, chưa có early stopping), được chép lại từ backup.
 - Model 3 **không chạy lại**: output trong 5 notebook, `src/model3/results/` và checkpoint là của lần chạy ngày
-  2026-10-11 với patience 6 (3D: 5), trong khi code notebook hiện ghi `PATIENCE = 7`.
+  2026-10-11 với patience 6 (3D: 5); patience trong 5 notebook đã được đặt lại đúng 6 (3D: 5) để khớp với kết quả đó.
 - Kernel `python3` trong lần chạy này là `anaconda3\envs\gpu` (torch 2.11.0+cu128), xem mục môi trường ở trên.
 - `RESULTS.md` và các bảng kết quả Model 1/2 cũ ở phía trên **chưa** được cập nhật theo bảng này.
 
