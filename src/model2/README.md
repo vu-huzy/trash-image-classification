@@ -42,8 +42,9 @@ is `calculate_metrics` from `py/metrics.py`.
 - **Preprocessing**: train uses Resize(224, 224), RandomHorizontalFlip, ColorJitter
   (brightness/contrast/saturation 0.1), ToTensor and ImageNet Normalize. Validation
   and test use Resize, ToTensor and the same Normalize.
-- **Training**: up to 30 epochs, batch 32, AdamW + cosine schedule, class-weighted
-  loss. Early stopping monitors validation accuracy with `PATIENCE = 15`. The weights with the best validation accuracy are kept in RAM and loaded
+- **Training**: up to 30 epochs, batch 32 (`resnet`: batch 16, because batch 32 ran out of GPU memory
+  and slowed to ~17 min/epoch), AdamW + cosine schedule, class-weighted
+  loss. Early stopping monitors validation accuracy with `PATIENCE = 7`. The weights with the best validation accuracy are kept in RAM and loaded
   back into the model after the loop.
 - **Test**: `calculate_metrics` prints accuracy, macro precision / recall / F1
   and weighted F1; then `classification_report` prints precision, recall, F1 and

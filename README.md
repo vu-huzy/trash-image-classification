@@ -163,6 +163,58 @@ nguyên nhân. Bảng precision/recall/F1/support từng lớp:
 [RESULTS.md](RESULTS.md). Kết quả của framework cũ vẫn nằm ở
 [src/model3/results/REPORT.md](src/model3/results/REPORT.md) (backbone khác: có MobileNetV2 và ViT-B/16).
 
+### Mức đồng nhất workflow giữa 14 notebook (rà soát ở commit `cdee048`)
+
+Đã giống nhau ở cả 14 notebook: dữ liệu `ImageFolder` trên `train/val/test`; train = Resize + RandomHorizontalFlip +
+ColorJitter(0.1) + Normalize ImageNet, val/test = Resize + Normalize; chọn best checkpoint theo **val accuracy cao nhất**;
+early stopping theo val accuracy; nạp lại best weights sau vòng lặp; test in accuracy / macro P-R-F1 / weighted F1 /
+`classification_report`; cell cuối lưu `state_dict` một dòng.
+
+Vẫn khác nhau (chưa gom, cần quyết định trước khi so sánh model với nhau):
+
+| Hạng mục | Model 1 | Model 2 | Model 3 |
+| --- | --- | --- | --- |
+| Patience / số epoch tối đa | 15 / 50 | 7 / 30 | 7 / 30 |
+| Optimizer + scheduler | Adam 1e-3, không scheduler | AdamW 1e-4, wd 5e-4, cosine | AdamW, head 1e-3, wd 1e-4 (3D: wd 0.01), cosine |
+| Batch size | 64 | 32 (`resnet`: 16) | 64 (3A/3B), 32 (3C/3D) |
+| Class weight / label smoothing | không / không | có / chỉ `resnet` (0.05) | không / không |
+| Seed | không | chỉ `cnn_sequential` | `torch.manual_seed(42)` |
+| Khác | `m1_01` dùng ảnh 128, còn lại 224 | tên biến viết tắt (`train_ds`, `loss_fn`, `LR`) ở 4/5 notebook | 3D có grad clip 1.0; `drop_last=True`; metric viết inline, không dùng `metrics.py` |
+
+`src/model1/metrics.py` và `src/model2/py/metrics.py` là hai bản gần giống nhau (bản Model 2 có thêm kiểm tra rỗng và độ dài).
+
+Môi trường chạy: kernelspec `python3` của user (`%APPDATA%\jupyter\kernels\python3`) trỏ vào `anaconda3\envs\gpu`
+(torch 2.11.0+cu128, scikit-learn 1.9.0), **không phải** `.venv` (torch 2.14.0+cu130 theo `requirements.txt`).
+Notebook chạy bằng kernel `python3` sẽ dùng env anaconda, cần ghi rõ env khi so sánh kết quả giữa các lần chạy.
+
+### Kết quả chạy lại ngày 2026-10-13 (code `cdee048`, patience Model 2/3 đặt về 7)
+
+Chạy nối tiếp 14 notebook bằng `nbconvert --execute --inplace` (GPU RTX 5070). Checkpoint cũ được cất ở
+`C:\dl-project\backup_checkpoints_20261013\{model1,model2,model3}` trước khi chạy.
+
+| Notebook | Epoch đã chạy | Epoch tốt nhất | Early stop | Val acc | Test acc | Macro F1 | Thời gian |
+| --- | ---: | ---: | --- | ---: | ---: | ---: | ---: |
+| `m1_01` | 22 / 50 | 7 | có | 23.50% | 19.79% | 0.1263 | 2.2 phút |
+| `m1_02` | 50 / 50 | 49 | không | 62.31% | 52.31% | 0.5080 | 6.9 phút |
+| `m1_03` | 50 / 50 | 45 | không | 69.14% | 63.08% | 0.6253 | 7.9 phút |
+| `m1_04` | 50 / 50 | 44 | không | 60.36% | 48.84% | 0.4771 | 8.1 phút |
+| `cnn_sequential` | 30 / 30 | 30 | không | 69.38% | 65.97% | 0.6526 | 16.1 phút |
+| `cnn_parallel` | 30 / 30 | 30 | không | 70.74% | 68.17% | 0.6754 | 17.8 phút |
+| `vgg_sequential` | 30 / 30 | 25 | không | 79.70% | 72.34% | 0.7109 | 29.1 phút |
+| `vgg_parallel` | 30 / 30 | 28 | không | 82.55% | 76.04% | 0.7477 | 37.4 phút |
+
+- Early stopping gần như không kích hoạt ở Model 1/2: epoch tốt nhất nằm sát giới hạn epoch (44–49 / 50, 25–30 / 30),
+  tức model còn đang cải thiện khi hết epoch. Đổi patience (7 hay 15) không đổi kết quả ở hai nhóm này; muốn tốt hơn
+  phải tăng số epoch hoặc đổi cách train.
+- `resnet` (Model 2) **không có kết quả mới**: chạy 140 phút vẫn chưa xong rồi bị dừng. Epoch đầu mất ~16 phút
+  (~17 phút/epoch, lần trước ~3 phút/epoch); VRAM 11.9/12.2 GB, GPU báo 100% nhưng chỉ ~52 W, nghi thiếu VRAM.
+  Notebook `resnet.ipynb` không bị ghi đè kết quả; đã hạ `BATCH_SIZE` từ 32 xuống 16 để tránh tràn VRAM, **chưa chạy lại**.
+  `src/model2/checkpoints/resnet.pt` hiện là file cũ (chạy 2026-10-11, batch 32, chưa có early stopping), được chép lại từ backup.
+- Model 3 **không chạy lại**: output trong 5 notebook, `src/model3/results/` và checkpoint là của lần chạy ngày
+  2026-10-11 với patience 6 (3D: 5), trong khi code notebook hiện ghi `PATIENCE = 7`.
+- Kernel `python3` trong lần chạy này là `anaconda3\envs\gpu` (torch 2.11.0+cu128), xem mục môi trường ở trên.
+- `RESULTS.md` và các bảng kết quả Model 1/2 cũ ở phía trên **chưa** được cập nhật theo bảng này.
+
 ## Việc còn thiếu / gợi ý tiếp theo
 
 - Kết quả chi tiết của 14 notebook (Model 1/2/3) nằm trong [RESULTS.md](RESULTS.md); file này được dựng từ
